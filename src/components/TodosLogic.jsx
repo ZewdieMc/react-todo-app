@@ -15,9 +15,10 @@ const TodosLogic = () => {
       title: 'Deploy to live server',
       completed: false,
     },
-  ];
+  ].map(todo => <li key={todo.id}>{todo.title}</li>);
+
   return (
-    <div>TodosLogic content</div>
+    <ul>{todos}</ul>
   )
 }
 export default TodosLogic;
