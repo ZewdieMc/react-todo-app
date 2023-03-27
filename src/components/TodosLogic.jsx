@@ -1,3 +1,6 @@
+import InputTodo from 'components/InputTodo';
+import TodosList from 'components/TodosList';
+
 const TodosLogic = () => {
   const todos = [
     {
@@ -15,10 +18,12 @@ const TodosLogic = () => {
       title: 'Deploy to live server',
       completed: false,
     },
-  ].map(todo => <li key={todo.id}>{todo.title}</li>);
-
+  ];
   return (
-    <ul>{todos}</ul>
+    <>
+      <InputTodo />
+      <TodosList todosProps={todos}/>
+    </>
   )
 }
 export default TodosLogic;
