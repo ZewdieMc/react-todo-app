@@ -1,10 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const Navbar = () => {
-  console.log(useState(false));
+  const [dropdown, setDropdown] = useState(false);
+  const ref = useRef();
   return (
-    <nav>
-      nav bar content
+<nav>
+      <ul>
+        <li>Home</li>
+        <li>About</li>
+        <li ref={ref}>
+        <button onClick={() => setDropdown(!dropdown)}>
+            Services <span>&#8595;</span>
+          </button>
+          {dropdown&&(<ul>
+            <li>Design</li>
+            <li>Development</li>
+          </ul>)}
+        </li>
+      </ul>
     </nav>
   );
 };
