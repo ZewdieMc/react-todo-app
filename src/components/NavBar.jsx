@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import styles from 'styles/Navbar.module.css';
 
 const Navbar = () => {
   const [dropdown, setDropdown] = useState(false);
@@ -16,7 +17,7 @@ const Navbar = () => {
     };
   }, [dropdown]);
   return (
-<nav>
+<nav className={styles.nav}>
       <ul>
         <li>Home</li>
         <li>About</li>
