@@ -3,11 +3,13 @@ import TodosLogic from 'components/TodosLogic';
 import Navbar from 'components/NavBar';
 const TodoApp = () => {
   return (
-    <>
-      <Navbar />
-      <Header />
-      <TodosLogic />
-    </>
+    <div className="wrapper">
+      <div className="todos">
+        <Navbar />
+        <Header />
+        <TodosLogic />
+      </div>
+    </div>
   );
 };
 export default TodoApp;
