@@ -1,25 +1,16 @@
 import InputTodo from 'components/InputTodo';
 import TodosList from 'components/TodosList';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from "uuid";
 
 const TodosLogic = () => {
-  const [todos, setTodos] = useState([
-    {
-      id: 1,
-      title: 'Setup development environment',
-      completed: true,
-    },
-    {
-      id: 2,
-      title: 'Develop website and add content',
-      completed: false,
-    },
-    {
-      id: 3,
-      title: 'Deploy to live server',
-      completed: false,
-    },
-  ]);
+   
+  const getInitialTodos = () => {
+    const temp = localStorage.getItem('todos');
+    const savedTodos = JSON.parse(temp);
+    return savedTodos || [];
+  }
+  const [todos, setTodos] = useState(getInitialTodos());
 
   const handleChange = (id) => {
     setTodos((prevState) =>
@@ -40,10 +31,41 @@ const TodosLogic = () => {
       [...todos.filter((todo) => todo.id !== id)]
     );
   }
+
+  const addTodo = (title) => {
+    const newTodo = {
+      id: uuidv4(),
+      title,
+      completed: false
+    }
+    setTodos([...todos, newTodo]);
+  }
+
+  const setUpdate = (updatedTitle, id) => {
+    setTodos(
+      todos.map((todo) => {
+        if (todo.id === id) {
+          todo.title = updatedTitle;
+        }
+        return todo;
+      })
+    );
+  };
+ 
+  
+  useEffect(() => {
+    const temp = JSON.stringify(todos);
+    localStorage.setItem('todos', temp);
+  }, [todos]);
+
   return (
     <>
-      <InputTodo />
-      <TodosList todosProps={todos} handleChange={handleChange} deleteTodo={deleteTodo}/>
+      <InputTodo addTodo={addTodo}/>
+      <TodosList 
+      todosProps={todos} 
+      handleChange={handleChange} 
+      deleteTodo={deleteTodo} 
+      setUpdate={setUpdate}/>
     </>
   )
 }
