@@ -32,8 +32,8 @@
 
 <!-- PROJECT DESCRIPTION -->
 
-# 📖 Math Magicians <a name="about-project"></a>
-
+# 📖 Todo App<a name="about-project"></a>
+<img src='./todo.gif'>
 React Todo is an application that is developed with ReactJs. It is used to add, edit and delete items/tasks into the Todo list.
 ## 🛠 Built With <a name="built-with"></a>
 React
