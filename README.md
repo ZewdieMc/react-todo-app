@@ -58,8 +58,8 @@ React Todo is an application that is developed with ReactJs. It is used to add, 
 <!-- LIVE DEMO -->
 
 ## 🚀 Live Demo <a name="live-demo"></a>
-[Coming soon]()
-<!-- Have a look at the [live demo ](https://zewdiemc.github.io/javascript-group-capstone/dist/) of the project. -->
+
+ Have a look at the [live demo ](https://react-todo-zed.netlify.app/) of the project.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
