@@ -1,0 +1,26 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  position: absolute;
+  top: 1rem;
+}
+
+.nav ul button {
+  padding: 0.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.nav ul li ul {
+  position: absolute;
+}
