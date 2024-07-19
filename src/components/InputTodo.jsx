@@ -28,7 +28,7 @@ const InputTodo = ({ addTodo }) => {
           value={title}
           onChange={handleChange}
         />
-        <button type="button" className="input-submit">
+        <button type="submit" className="input-submit">
           <FaPlusCircle
             style={{
               color: 'green',
