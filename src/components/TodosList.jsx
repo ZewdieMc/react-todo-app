@@ -5,7 +5,7 @@ const TodosList = ({
   todosProps, handleChange, deleteTodo, setUpdate,
 }) => (
   <ul>
-{todosProps.slice().reverse().map((todo) => ( // Use slice() to create a copy before reversing
+    {todosProps.slice().reverse().map((todo) => ( // Use slice() to create a copy before reversing
       <TodoItem
         key={todo.id}
         itemProp={todo}
