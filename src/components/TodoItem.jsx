@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { AiFillEdit } from 'react-icons/ai';
 import PropTypes from 'prop-types';
+import { GoChevronUp, GoChevronDown } from 'react-icons/go';
 
 const TodoItem = ({
-  itemProp, onChange, deleteTodo, setUpdate,
+  itemProp, index, onChange, deleteTodo, setUpdate, moveUp,
+  moveDown, size,
 }) => {
   const [editing, setEditing] = useState(false);
 
@@ -52,6 +54,26 @@ const TodoItem = ({
         >
           <FaTrash style={{ color: 'red', fontSize: '16px' }} />
         </button>
+        <div>
+          {index > 0 && (
+            <button
+              type="button"
+              onClick={() => moveUp(index)}
+              aria-label="Move up"
+            >
+              <GoChevronUp style={{ color: 'green', fontSize: '26px' }} />
+            </button>
+          )}
+          {index < size - 1 && (
+            <button
+              type="button"
+              onClick={() => moveDown(index)}
+              aria-label="Move down"
+            >
+              <GoChevronDown style={{ color: 'red', fontSize: '26px' }} />
+            </button>
+          )}
+        </div>
         <span style={itemProp.completed ? completedStyle : null}>
           {itemProp.title}
         </span>
@@ -70,12 +92,16 @@ const TodoItem = ({
 
 TodoItem.propTypes = {
   itemProp: PropTypes.shape({
-    id: PropTypes.number,
+    id: PropTypes.string,
     title: PropTypes.string,
     completed: PropTypes.bool,
   }).isRequired,
   onChange: PropTypes.func.isRequired,
   deleteTodo: PropTypes.func.isRequired,
   setUpdate: PropTypes.func.isRequired,
+  moveUp: PropTypes.func.isRequired,
+  moveDown: PropTypes.func.isRequired,
+  index: PropTypes.number.isRequired,
+  size: PropTypes.number.isRequired,
 };
 export default TodoItem;

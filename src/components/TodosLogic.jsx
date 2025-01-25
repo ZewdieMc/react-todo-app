@@ -54,6 +54,26 @@ const TodosLogic = () => {
     localStorage.setItem('todos', temp);
   }, [todos]);
 
+  const moveUp = (index) => {
+    if (index > 0) {
+      setTodos((prevTodos) => {
+        const newTodos = [...prevTodos];
+        [newTodos[index - 1], newTodos[index]] = [newTodos[index], newTodos[index - 1]];
+        return newTodos;
+      });
+    }
+  };
+
+  const moveDown = (index) => {
+    if (index < todos.length - 1) {
+      setTodos((prevTodos) => {
+        const newTodos = [...prevTodos];
+        [newTodos[index + 1], newTodos[index]] = [newTodos[index], newTodos[index + 1]];
+        return newTodos;
+      });
+    }
+  };
+
   return (
     <>
       <InputTodo addTodo={addTodo} />
@@ -62,6 +82,8 @@ const TodosLogic = () => {
         handleChange={handleChange}
         deleteTodo={deleteTodo}
         setUpdate={setUpdate}
+        moveUp={moveUp}
+        moveDown={moveDown}
       />
     </>
   );
