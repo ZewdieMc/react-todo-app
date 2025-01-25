@@ -43,6 +43,7 @@ const TodoItem = ({
           type="checkbox"
           checked={itemProp.completed}
           onChange={() => onChange(itemProp.id)}
+          style={{ transform: 'scale(2)', color: 'green' }}
         />
         <button type="button" onClick={handleEditing}>
           <AiFillEdit style={{ color: 'blue', fontSize: '16px' }} />
@@ -52,7 +53,7 @@ const TodoItem = ({
           className={styles.button}
           onClick={() => deleteTodo(itemProp.id)}
         >
-          <FaTrash style={{ color: 'red', fontSize: '16px' }} />
+          <FaTrash style={{ color: 'gray', fontSize: '16px' }} />
         </button>
         <div>
           {index > 0 && (
