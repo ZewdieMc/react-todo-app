@@ -50,7 +50,7 @@ const TodoItem = ({
         </button>
         <button
           type="button"
-          className={styles.button}
+          className={`${styles.button} ${styles['hide-on-mobile']}`}
           onClick={() => deleteTodo(itemProp.id)}
         >
           <FaTrash style={{ color: 'gray', fontSize: '16px' }} />

@@ -11,7 +11,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  font-family: 'Courier New', Courier, monospace ;
+  font-family: 'Courier New', Courier, monospace;
   font-weight: bold;
 }
 
@@ -33,9 +33,46 @@
 .content > div {
   order: 2;
 }
+
 .textInput {
   width: 100%;
   padding: 10px;
   border: 1px solid #dfdfdf;
   outline: none;
+}
+
+/* Media Queries for Mobile Devices */
+@media (max-width: 600px) {
+  .item {
+    padding: 10px 15px;
+  }
+
+  .content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .content span {
+    padding: 0 1rem 0 0;
+    order: 1;
+  }
+
+  .content button {
+    order: 2;
+    margin-left: 0;
+    margin-bottom: 5px;
+  }
+
+  .content > div {
+    order: 3;
+    width: 100%;
+  }
+
+  .textInput {
+    width: 100%;
+  }
+
+  .hide-on-mobile {
+    display: none;
+  }
 }
