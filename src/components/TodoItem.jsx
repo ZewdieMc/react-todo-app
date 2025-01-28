@@ -31,8 +31,8 @@ const TodoItem = ({
 
   const completedStyle = {
     fontStyle: 'italic',
-    color: '#595959',
-    opacity: 0.4,
+    color: 'green',
+    opacity: 0.5,
     textDecoration: 'line-through',
   };
 
@@ -79,9 +79,10 @@ const TodoItem = ({
           {itemProp.title}
         </span>
       </div>
-      <input
+      <textarea
         style={editMode}
-        type="text"
+        rows={4}
+        cols={10}
         value={itemProp.title}
         className={styles.textInput}
         onChange={(e) => setUpdate(e.target.value, itemProp.id)}

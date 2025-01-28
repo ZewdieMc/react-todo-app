@@ -6,6 +6,12 @@
   background: #f0efef;
 }
 
+.item > textarea {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
 .content {
   display: flex;
   justify-content: space-between;
