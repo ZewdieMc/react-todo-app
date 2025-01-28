@@ -35,7 +35,7 @@ const TodosLogic = () => {
       title,
       completed: false,
     };
-    setTodos([...todos, newTodo]);
+    setTodos([newTodo, ...todos]);
   };
 
   const setUpdate = (updatedTitle, id) => {
