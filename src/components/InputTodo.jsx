@@ -24,7 +24,7 @@ const InputTodo = ({ addTodo }) => {
         <input
           type="text"
           className="input-text"
-          placeholder="Add Todo..."
+          placeholder="Insert todo here..."
           value={title}
           onChange={handleChange}
         />

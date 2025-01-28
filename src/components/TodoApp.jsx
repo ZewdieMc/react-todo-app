@@ -1,11 +1,11 @@
 import Header from 'components/Header';
 import TodosLogic from 'components/TodosLogic';
-import Navbar from 'components/NavBar';
+// import Navbar from 'components/NavBar';
 
 const TodoApp = () => (
   <div className="wrapper">
     <div className="todos">
-      <Navbar />
+      {/* <Navbar /> */}
       <Header />
       <TodosLogic />
     </div>
