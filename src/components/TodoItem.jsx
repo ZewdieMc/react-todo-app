@@ -112,69 +112,73 @@ const TodoItem = ({
           )}
         </div>
         <span style={itemProp.completed ? completedStyle : null}>
-          <div
-          // eslint-disable-next-line
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(itemProp.title),
-            }}
-          />
+          {/* eslint-disable-next-line */}
+          <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(itemProp.title) }} />
         </span>
+        {itemProp.completed ? (
+          <div className="completion" style={{ display: 'inline', textDecoration: 'none' }}>
+            😍
+          </div>
+        ) : (
+          <div className="completion" style={{ display: 'inline', textDecoration: 'none' }}>
+            😣
+          </div>
+        )}
       </div>
       {editing && (
-      <Editor
-        toolbarOnFocus
-        toolbarStyle={{ background: 'white' }}
-        editorState={editorState}
-        editorStyle={editMode}
-        editorClassName="editor"
-        wrapperStyle={{ background: 'white' }}
-        wrapperClassName={styles.textInput}
-        onEditorStateChange={handleEditorChange}
-        onBlur={handleUpdatedDone}
-        toolbar={{
-          options: [
-            'inline',
-            'blockType',
-            'fontSize',
-            'fontFamily',
-            'list',
-            'textAlign',
-            'colorPicker',
-            'link',
-            'embedded',
-            'emoji',
-            'image',
-            'remove',
-            'history',
-          ],
-          inline: { inDropdown: false },
-          list: { inDropdown: false },
-          textAlign: { inDropdown: false },
-          link: {
-            inDropdown: false,
-            showOpenOptionOnHover: true, // Ensure the link editor pops up
-            defaultTargetOption: '_blank', // Open in new tab
-            options: ['link', 'unlink'],
-          },
-          history: { inDropdown: false },
-          emoji: {
-            className: undefined,
-            component: undefined,
-            popupClassName: undefined,
-            emojis: [
-              '😀', '😁', '😂', '😃', '😉', '😋', '😎', '😍', '😗', '🤗', '🤔', '😣', '😫', '😴', '😌', '🤓',
-              '😛', '😜', '😠', '😇', '😷', '😈', '👻', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '🙈',
-              '🙉', '🙊', '👼', '👮', '🕵', '💂', '👳', '🎅', '👸', '👰', '👲', '🙍', '🙇', '🚶', '🏃', '💃',
-              '⛷', '🏂', '🏌', '🏄', '🚣', '🏊', '⛹', '🏋', '🚴', '👫', '💪', '👈', '👉', '👉', '👆', '🖕',
-              '👇', '🖖', '🤘', '🖐', '👌', '👍', '👎', '✊', '👊', '👏', '🙌', '🙏', '🐵', '🐶', '🐇', '🐥',
-              '🐸', '🐌', '🐛', '🐜', '🐝', '🍉', '🍄', '🍔', '🍤', '🍨', '🍪', '🎂', '🍰', '🍾', '🍷', '🍸',
-              '🍺', '🌍', '🚑', '⏰', '🌙', '🌝', '🌞', '⭐', '🌟', '🌠', '🌨', '🌩', '⛄', '🔥', '🎄', '🎈',
-              '🎉', '🎊', '🎁', '🎗', '🏀', '🏈', '🎲', '🔇', '🔈', '📣', '🔔', '🎵', '🎷', '💰', '🖊', '📅',
-              '✅', '❎', '💯',
+        <Editor
+          toolbarStyle={{ background: 'white' }}
+          editorState={editorState}
+          editorStyle={editMode}
+          editorClassName="editor"
+          wrapperStyle={{ background: 'white' }}
+          wrapperClassName={styles.textInput}
+          onEditorStateChange={handleEditorChange}
+          onBlur={handleUpdatedDone}
+          toolbar={{
+            options: [
+              'inline',
+              'blockType',
+              'fontSize',
+              'fontFamily',
+              'list',
+              'textAlign',
+              'colorPicker',
+              'link',
+              'embedded',
+              'emoji',
+              'image',
+              'remove',
+              'history',
             ],
-          },
-        }}
-      />
+            inline: { inDropdown: false },
+            list: { inDropdown: false },
+            textAlign: { inDropdown: false },
+            link: {
+              inDropdown: false,
+              showOpenOptionOnHover: true, // Ensure the link editor pops up
+              defaultTargetOption: '_blank', // Open in new tab
+              options: ['link', 'unlink'],
+            },
+            history: { inDropdown: false },
+            emoji: {
+              className: undefined,
+              component: undefined,
+              popupClassName: undefined,
+              emojis: [
+                '😀', '😁', '😂', '😃', '😉', '😋', '😎', '😍', '😗', '🤗', '🤔', '😣', '😫', '😴', '😌', '🤓',
+                '😛', '😜', '😠', '😇', '😷', '😈', '👻', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '🙈',
+                '🙉', '🙊', '👼', '👮', '🕵', '💂', '👳', '🎅', '👸', '👰', '👲', '🙍', '🙇', '🚶', '🏃', '💃',
+                '⛷', '🏂', '🏌', '🏄', '🚣', '🏊', '⛹', '🏋', '🚴', '👫', '💪', '👈', '👉', '👉', '👆', '🖕',
+                '👇', '🖖', '🤘', '🖐', '👌', '👍', '👎', '✊', '👊', '👏', '🙌', '🙏', '🐵', '🐶', '🐇', '🐥',
+                '🐸', '🐌', '🐛', '🐜', '🐝', '🍉', '🍄', '🍔', '🍤', '🍨', '🍪', '🎂', '🍰', '🍾', '🍷', '🍸',
+                '🍺', '🌍', '🚑', '⏰', '🌙', '🌝', '🌞', '⭐', '🌟', '🌠', '🌨', '🌩', '⛄', '🔥', '🎄', '🎈',
+                '🎉', '🎊', '🎁', '🎗', '🏀', '🏈', '🎲', '🔇', '🔈', '📣', '🔔', '🎵', '🎷', '💰', '🖊', '📅',
+                '✅', '❎', '💯',
+              ],
+            },
+          }}
+        />
       )}
     </li>
   );
