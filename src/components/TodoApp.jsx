@@ -5,7 +5,6 @@ import TodosLogic from 'components/TodosLogic';
 const TodoApp = () => (
   <div className="wrapper">
     <div className="todos">
-      {/* <Navbar /> */}
       <Header />
       <TodosLogic />
     </div>
