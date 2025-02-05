@@ -6,7 +6,7 @@ import styles from '../styles/App.module.css';
 
 const TodoApp = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const todosPerPage = 8;
+  const todosPerPage = 5;
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
