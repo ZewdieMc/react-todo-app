@@ -79,7 +79,7 @@ const TodoItem = ({
           type="checkbox"
           checked={itemProp.completed}
           onChange={() => onChange(itemProp.id)}
-          style={{ transform: 'scale(2)', color: 'green' }}
+          style={{ transform: 'scale(2)', color: 'green', marginRight: '20px' }}
         />
         <button type="button" onClick={handleEditing}>
           <AiFillEdit style={{ color: 'blue', fontSize: '16px' }} />
