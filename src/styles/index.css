@@ -7,15 +7,18 @@
 body {
   font-family: "Segoe UI", sans-serif;
   line-height: 1.4;
-  color: #000;
-  background: #d9e7d8;
   height: 100vh;
   font-weight: 400;
+  background-image: url('../../public/Milky_way.jpeg');
+  background-size: cover;
+  background-position: center;
+  
 }
 
 .wrapper {
   width: 100%;
-  padding: 8rem 20px 3rem;
+  padding: 4rem 10px 3rem;
+  
 }
 
 .todos {

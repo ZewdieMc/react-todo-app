@@ -116,11 +116,11 @@ const TodoItem = ({
           <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(itemProp.title) }} />
         </span>
         {itemProp.completed ? (
-          <div className="completion" style={{ display: 'inline', textDecoration: 'none' }}>
+          <div className="completion" style={{ display: 'inline', textDecoration: 'none', fontSize: '30px' }}>
             😍
           </div>
         ) : (
-          <div className="completion" style={{ display: 'inline', textDecoration: 'none' }}>
+          <div className="completion" style={{ display: 'inline', textDecoration: 'none', fontSize: '30px' }}>
             😣
           </div>
         )}
