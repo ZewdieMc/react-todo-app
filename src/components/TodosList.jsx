@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 const TodosList = ({
   todosProps, handleChange, deleteTodo, setUpdate, moveUp, moveDown, comments,
-  handleCommentChange, activeCommentId, setActiveCommentId,
+  handleCommentChange, activeCommentId, setActiveCommentId, currentPage, totalPages,
 }) => (
   <ul>
     {todosProps.slice().map((todo, i) => ( // Use slice()
@@ -22,6 +22,8 @@ const TodosList = ({
         handleCommentChange={handleCommentChange}
         activeCommentId={activeCommentId}
         setActiveCommentId={setActiveCommentId}
+        currentPage={currentPage}
+        totalPages={totalPages}
       />
     ))}
   </ul>
@@ -42,6 +44,8 @@ TodosList.propTypes = {
   handleCommentChange: PropTypes.func.isRequired,
   activeCommentId: PropTypes.string,
   setActiveCommentId: PropTypes.func.isRequired,
+  currentPage: PropTypes.number.isRequired,
+  totalPages: PropTypes.number.isRequired,
 };
 
 TodosList.defaultProps = {

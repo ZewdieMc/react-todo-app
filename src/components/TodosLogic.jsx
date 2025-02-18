@@ -85,23 +85,38 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     localStorage.setItem('comments', tempComments);
   }, [todos, comments]);
 
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(todos.length / todosPerPage);
+
   const moveUp = (index) => {
-    if (index > 0) {
+    const globalIndex = (currentPage - 1) * todosPerPage + index;
+    if (globalIndex > 0) {
       setTodos((prevTodos) => {
         const newTodos = [...prevTodos];
-        [newTodos[index - 1], newTodos[index]] = [newTodos[index], newTodos[index - 1]];
+        [newTodos[globalIndex - 1], newTodos[globalIndex]] = [
+          newTodos[globalIndex], newTodos[globalIndex - 1],
+        ];
         return newTodos;
       });
+      if (index === 0 && currentPage > 1) {
+        onPageChange(currentPage - 1);
+      }
     }
   };
 
   const moveDown = (index) => {
-    if (index < todos.length - 1) {
+    const globalIndex = (currentPage - 1) * todosPerPage + index;
+    if (globalIndex < todos.length - 1) {
       setTodos((prevTodos) => {
         const newTodos = [...prevTodos];
-        [newTodos[index + 1], newTodos[index]] = [newTodos[index], newTodos[index + 1]];
+        [newTodos[globalIndex + 1], newTodos[globalIndex]] = [
+          newTodos[globalIndex], newTodos[globalIndex + 1],
+        ];
         return newTodos;
       });
+      if (index === todosPerPage - 1 && currentPage < totalPages) {
+        onPageChange(currentPage + 1);
+      }
     }
   };
 
@@ -109,9 +124,6 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   const indexOfLastTodo = currentPage * todosPerPage;
   const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
   const currentTodos = todos.slice(indexOfFirstTodo, indexOfLastTodo);
-
-  // Calculate the total number of pages
-  const totalPages = Math.ceil(todos.length / todosPerPage);
 
   return (
     <>
@@ -127,6 +139,8 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
         handleCommentChange={handleCommentChange}
         activeCommentId={activeCommentId}
         setActiveCommentId={setActiveCommentId}
+        currentPage={currentPage}
+        totalPages={totalPages}
       />
       <div className={styles.pagination}>
         {Array.from({ length: totalPages }, (_, index) => (

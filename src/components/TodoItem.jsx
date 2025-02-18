@@ -14,6 +14,7 @@ import styles from 'styles/TodoItem.module.css';
 const TodoItem = ({
   itemProp, index, onChange, deleteTodo, setUpdate, moveUp,
   moveDown, size, comments, handleCommentChange, activeCommentId, setActiveCommentId,
+  currentPage, totalPages,
 }) => {
   const [editing, setEditing] = useState(false);
   const [editorState, setEditorState] = useState(() => {
@@ -82,6 +83,8 @@ const TodoItem = ({
 
   const commentTooltip = comments[itemProp.id] ? comments[itemProp.id] : 'Add comment on this item';
 
+  const globalIndex = (currentPage - 1) * size + index;
+
   return (
     <li className={styles.item}>
       <div className={styles.content} style={viewMode}>
@@ -117,7 +120,7 @@ const TodoItem = ({
           </div>
         )}
         <div>
-          {index > 0 && (
+          {globalIndex > 0 && (
             <button
               type="button"
               onClick={() => moveUp(index)}
@@ -126,7 +129,7 @@ const TodoItem = ({
               <GoChevronUp style={{ color: 'green', fontSize: '26px' }} />
             </button>
           )}
-          {index < size - 1 && (
+          {globalIndex < size * totalPages - 1 && (
             <button
               type="button"
               onClick={() => moveDown(index)}
@@ -226,6 +229,8 @@ TodoItem.propTypes = {
   handleCommentChange: PropTypes.func.isRequired,
   activeCommentId: PropTypes.string,
   setActiveCommentId: PropTypes.func.isRequired,
+  currentPage: PropTypes.number.isRequired,
+  totalPages: PropTypes.number.isRequired,
 };
 
 TodoItem.defaultProps = {
