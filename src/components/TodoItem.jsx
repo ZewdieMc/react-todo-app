@@ -80,6 +80,8 @@ const TodoItem = ({
     textDecoration: 'line-through',
   };
 
+  const commentTooltip = comments[itemProp.id] ? comments[itemProp.id] : 'Add comment on this item';
+
   return (
     <li className={styles.item}>
       <div className={styles.content} style={viewMode}>
@@ -99,7 +101,7 @@ const TodoItem = ({
         >
           <FaTrash style={{ color: 'gray', fontSize: '16px' }} />
         </button>
-        <button type="button" onClick={toggleComment} title="Show Comment">
+        <button type="button" onClick={toggleComment} title={commentTooltip}>
           <FaCommentDots style={{ color: 'orange', fontSize: '16px' }} />
         </button>
         {activeCommentId === itemProp.id && (
