@@ -11,7 +11,23 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     const savedTodos = JSON.parse(temp);
     return savedTodos || [];
   };
+
+  const getInitialComments = (todos) => {
+    const temp = localStorage.getItem('comments');
+    const savedComments = JSON.parse(temp);
+    if (savedComments) {
+      return savedComments;
+    }
+    const initialComments = {};
+    todos.forEach((todo) => {
+      initialComments[todo.id] = '';
+    });
+    return initialComments;
+  };
+
   const [todos, setTodos] = useState(getInitialTodos());
+  const [comments, setComments] = useState(getInitialComments(getInitialTodos()));
+  const [activeCommentId, setActiveCommentId] = useState(null);
 
   const handleChange = (id) => {
     setTodos((prevState) => prevState.map((todo) => {
@@ -22,6 +38,13 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
         };
       }
       return todo;
+    }));
+  };
+
+  const handleCommentChange = (id, comment) => {
+    setComments((prevComments) => ({
+      ...prevComments,
+      [id]: comment,
     }));
   };
 
@@ -38,6 +61,10 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
       completed: false,
     };
     setTodos([newTodo, ...todos]);
+    setComments((prevComments) => ({
+      ...prevComments,
+      [newTodo.id]: '',
+    }));
   };
 
   const setUpdate = (updatedTitle, id) => {
@@ -54,7 +81,9 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   useEffect(() => {
     const temp = JSON.stringify(todos);
     localStorage.setItem('todos', temp);
-  }, [todos]);
+    const tempComments = JSON.stringify(comments);
+    localStorage.setItem('comments', tempComments);
+  }, [todos, comments]);
 
   const moveUp = (index) => {
     if (index > 0) {
@@ -94,6 +123,10 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
         setUpdate={setUpdate}
         moveUp={moveUp}
         moveDown={moveDown}
+        comments={comments}
+        handleCommentChange={handleCommentChange}
+        activeCommentId={activeCommentId}
+        setActiveCommentId={setActiveCommentId}
       />
       <div className={styles.pagination}>
         {Array.from({ length: totalPages }, (_, index) => (

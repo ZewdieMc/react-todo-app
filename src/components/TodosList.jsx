@@ -1,8 +1,10 @@
+import React from 'react';
 import TodoItem from 'components/TodoItem';
 import PropTypes from 'prop-types';
 
 const TodosList = ({
-  todosProps, handleChange, deleteTodo, setUpdate, moveUp, moveDown,
+  todosProps, handleChange, deleteTodo, setUpdate, moveUp, moveDown, comments,
+  handleCommentChange, activeCommentId, setActiveCommentId,
 }) => (
   <ul>
     {todosProps.slice().map((todo, i) => ( // Use slice()
@@ -16,6 +18,10 @@ const TodosList = ({
         moveUp={moveUp}
         moveDown={moveDown}
         size={todosProps.length}
+        comments={comments}
+        handleCommentChange={handleCommentChange}
+        activeCommentId={activeCommentId}
+        setActiveCommentId={setActiveCommentId}
       />
     ))}
   </ul>
@@ -32,5 +38,14 @@ TodosList.propTypes = {
   setUpdate: PropTypes.func.isRequired,
   moveUp: PropTypes.func.isRequired,
   moveDown: PropTypes.func.isRequired,
+  comments: PropTypes.objectOf(PropTypes.string).isRequired,
+  handleCommentChange: PropTypes.func.isRequired,
+  activeCommentId: PropTypes.string,
+  setActiveCommentId: PropTypes.func.isRequired,
 };
+
+TodosList.defaultProps = {
+  activeCommentId: null,
+};
+
 export default TodosList;

@@ -6,14 +6,14 @@ import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs';
 import DOMPurify from 'dompurify';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import { AiFillEdit } from 'react-icons/ai';
-import { FaTrash } from 'react-icons/fa';
+import { AiFillEdit, AiFillSave } from 'react-icons/ai';
+import { FaTrash, FaCommentDots } from 'react-icons/fa';
 import { GoChevronUp, GoChevronDown } from 'react-icons/go';
 import styles from 'styles/TodoItem.module.css';
 
 const TodoItem = ({
   itemProp, index, onChange, deleteTodo, setUpdate, moveUp,
-  moveDown, size,
+  moveDown, size, comments, handleCommentChange, activeCommentId, setActiveCommentId,
 }) => {
   const [editing, setEditing] = useState(false);
   const [editorState, setEditorState] = useState(() => {
@@ -57,6 +57,14 @@ const TodoItem = ({
     setEditorState(state);
   };
 
+  const toggleComment = () => {
+    setActiveCommentId(activeCommentId === itemProp.id ? null : itemProp.id);
+  };
+
+  const handleCommentSave = () => {
+    setActiveCommentId(null);
+  };
+
   const viewMode = {};
   const editMode = { padding: '14px' };
   if (editing) {
@@ -91,6 +99,21 @@ const TodoItem = ({
         >
           <FaTrash style={{ color: 'gray', fontSize: '16px' }} />
         </button>
+        <button type="button" onClick={toggleComment} title="Show Comment">
+          <FaCommentDots style={{ color: 'orange', fontSize: '16px' }} />
+        </button>
+        {activeCommentId === itemProp.id && (
+          <div className={styles.commentPopup}>
+            <textarea
+              className={styles.textarea}
+              value={comments && comments[itemProp.id] ? comments[itemProp.id] : ''}
+              onChange={(e) => handleCommentChange(itemProp.id, e.target.value)}
+            />
+            <button type="button" onClick={handleCommentSave} title="Save Comment">
+              <AiFillSave style={{ color: 'green', fontSize: '24px' }} />
+            </button>
+          </div>
+        )}
         <div>
           {index > 0 && (
             <button
@@ -197,5 +220,14 @@ TodoItem.propTypes = {
   moveDown: PropTypes.func.isRequired,
   index: PropTypes.number.isRequired,
   size: PropTypes.number.isRequired,
+  comments: PropTypes.objectOf(PropTypes.string).isRequired,
+  handleCommentChange: PropTypes.func.isRequired,
+  activeCommentId: PropTypes.string,
+  setActiveCommentId: PropTypes.func.isRequired,
 };
+
+TodoItem.defaultProps = {
+  activeCommentId: null,
+};
+
 export default TodoItem;
