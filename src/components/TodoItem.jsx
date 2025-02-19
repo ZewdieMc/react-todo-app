@@ -9,6 +9,7 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { AiFillEdit, AiFillSave } from 'react-icons/ai';
 import { FaTrash, FaCommentDots } from 'react-icons/fa';
 import { GoChevronUp, GoChevronDown } from 'react-icons/go';
+import ConfirmModal from 'components/ConfirmModal';
 import styles from 'styles/TodoItem.module.css';
 
 const TodoItem = ({
@@ -17,6 +18,7 @@ const TodoItem = ({
   currentPage, totalPages,
 }) => {
   const [editing, setEditing] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [editorState, setEditorState] = useState(() => {
     let contentState;
     try {
@@ -66,6 +68,19 @@ const TodoItem = ({
     setActiveCommentId(null);
   };
 
+  const handleDelete = () => {
+    setShowConfirmModal(true);
+  };
+
+  const confirmDelete = () => {
+    deleteTodo(itemProp.id);
+    setShowConfirmModal(false);
+  };
+
+  const cancelDelete = () => {
+    setShowConfirmModal(false);
+  };
+
   const viewMode = {};
   const editMode = { padding: '14px' };
   if (editing) {
@@ -100,7 +115,7 @@ const TodoItem = ({
         <button
           type="button"
           className={`${styles.button} ${styles['hide-on-mobile']}`}
-          onClick={() => deleteTodo(itemProp.id)}
+          onClick={handleDelete}
         >
           <FaTrash style={{ color: 'gray', fontSize: '16px' }} />
         </button>
@@ -206,6 +221,13 @@ const TodoItem = ({
               ],
             },
           }}
+        />
+      )}
+      {showConfirmModal && (
+        <ConfirmModal
+          message="Are you sure you want to delete this todo?"
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
         />
       )}
     </li>
