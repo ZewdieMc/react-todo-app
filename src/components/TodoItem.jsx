@@ -48,12 +48,10 @@ const TodoItem = ({
     setEditing(true);
   };
 
-  const handleUpdatedDone = (event) => {
-    if (event.key === 'Enter' || event.type === 'blur') {
-      setEditing(false);
-      const htmlContent = draftToHtml(convertToRaw(editorState.getCurrentContent()));
-      setUpdate(htmlContent, itemProp.id);
-    }
+  const handleUpdatedDone = () => {
+    setEditing(false);
+    const htmlContent = draftToHtml(convertToRaw(editorState.getCurrentContent()));
+    setUpdate(htmlContent, itemProp.id);
   };
 
   const handleEditorChange = (state) => {
@@ -169,59 +167,63 @@ const TodoItem = ({
         )}
       </div>
       {editing && (
-        <Editor
-          toolbarStyle={{ background: 'white' }}
-          editorState={editorState}
-          editorStyle={editMode}
-          editorClassName="editor"
-          wrapperStyle={{ background: 'white' }}
-          wrapperClassName={styles.textInput}
-          onEditorStateChange={handleEditorChange}
-          onBlur={handleUpdatedDone}
-          toolbar={{
-            options: [
-              'inline',
-              'blockType',
-              'fontSize',
-              'fontFamily',
-              'list',
-              'textAlign',
-              'colorPicker',
-              'link',
-              'embedded',
-              'emoji',
-              'image',
-              'remove',
-              'history',
-            ],
-            inline: { inDropdown: false },
-            list: { inDropdown: false },
-            textAlign: { inDropdown: false },
-            link: {
-              inDropdown: false,
-              showOpenOptionOnHover: true, // Ensure the link editor pops up
-              defaultTargetOption: '_blank', // Open in new tab
-              options: ['link', 'unlink'],
-            },
-            history: { inDropdown: false },
-            emoji: {
-              className: undefined,
-              component: undefined,
-              popupClassName: undefined,
-              emojis: [
-                '😀', '😁', '😂', '😃', '😉', '😋', '😎', '😍', '😗', '🤗', '🤔', '😣', '😫', '😴', '😌', '🤓',
-                '😛', '😜', '😠', '😇', '😷', '😈', '👻', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '🙈',
-                '🙉', '🙊', '👼', '👮', '🕵', '💂', '👳', '🎅', '👸', '👰', '👲', '🙍', '🙇', '🚶', '🏃', '💃',
-                '⛷', '🏂', '🏌', '🏄', '🚣', '🏊', '⛹', '🏋', '🚴', '👫', '💪', '👈', '👉', '👉', '👆', '🖕',
-                '👇', '🖖', '🤘', '🖐', '👌', '👍', '👎', '✊', '👊', '👏', '🙌', '🙏', '🐵', '🐶', '🐇', '🐥',
-                '🐸', '🐌', '🐛', '🐜', '🐝', '🍉', '🍄', '🍔', '🍤', '🍨', '🍪', '🎂', '🍰', '🍾', '🍷', '🍸',
-                '🍺', '🌍', '🚑', '⏰', '🌙', '🌝', '🌞', '⭐', '🌟', '🌠', '🌨', '🌩', '⛄', '🔥', '🎄', '🎈',
-                '🎉', '🎊', '🎁', '🎗', '🏀', '🏈', '🎲', '🔇', '🔈', '📣', '🔔', '🎵', '🎷', '💰', '🖊', '📅',
-                '✅', '❎', '💯',
+        <div>
+          <Editor
+            toolbarStyle={{ background: 'white' }}
+            editorState={editorState}
+            editorStyle={editMode}
+            editorClassName="editor"
+            wrapperStyle={{ background: 'white' }}
+            wrapperClassName={styles.textInput}
+            onEditorStateChange={handleEditorChange}
+            toolbar={{
+              options: [
+                'inline',
+                'blockType',
+                'fontSize',
+                'fontFamily',
+                'list',
+                'textAlign',
+                'colorPicker',
+                'link',
+                'embedded',
+                'emoji',
+                'image',
+                'remove',
+                'history',
               ],
-            },
-          }}
-        />
+              inline: { inDropdown: false },
+              list: { inDropdown: false },
+              textAlign: { inDropdown: false },
+              link: {
+                inDropdown: false,
+                showOpenOptionOnHover: true, // Ensure the link editor pops up
+                defaultTargetOption: '_blank', // Open in new tab
+                options: ['link', 'unlink'],
+              },
+              history: { inDropdown: false },
+              emoji: {
+                className: undefined,
+                component: undefined,
+                popupClassName: undefined,
+                emojis: [
+                  '😀', '😁', '😂', '😃', '😉', '😋', '😎', '😍', '😗', '🤗', '🤔', '😣', '😫', '😴', '😌', '🤓',
+                  '😛', '😜', '😠', '😇', '😷', '😈', '👻', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '🙈',
+                  '🙉', '🙊', '👼', '👮', '🕵', '💂', '👳', '🎅', '👸', '👰', '👲', '🙍', '🙇', '🚶', '🏃', '💃',
+                  '⛷', '🏂', '🏌', '🏄', '🚣', '🏊', '⛹', '🏋', '🚴', '👫', '💪', '👈', '👉', '👉', '👆', '🖕',
+                  '👇', '🖖', '🤘', '🖐', '👌', '👍', '👎', '✊', '👊', '👏', '🙌', '🙏', '🐵', '🐶', '🐇', '🐥',
+                  '🐸', '🐌', '🐛', '🐜', '🐝', '🍉', '🍄', '🍔', '🍤', '🍨', '🍪', '🎂', '🍰', '🍾', '🍷', '🍸',
+                  '🍺', '🌍', '🚑', '⏰', '🌙', '🌝', '🌞', '⭐', '🌟', '🌠', '🌨', '🌩', '⛄', '🔥', '🎄', '🎈',
+                  '🎉', '🎊', '🎁', '🎗', '🏀', '🏈', '🎲', '🔇', '🔈', '📣', '🔔', '🎵', '🎷', '💰', '🖊', '📅',
+                  '✅', '❎', '💯',
+                ],
+              },
+            }}
+          />
+          <button type="button" onClick={handleUpdatedDone} className={styles.saveButton}>
+            Save
+          </button>
+        </div>
       )}
       {showConfirmModal && (
         <ConfirmModal
