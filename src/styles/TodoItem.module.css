@@ -23,6 +23,12 @@
   order: 1;
 }
 
+.content span span.dueDate {
+  font-size: 0.8rem;
+  color: red;
+  font-weight: bold;
+}
+
 .content span span.completion {
   text-decoration: none;
 }

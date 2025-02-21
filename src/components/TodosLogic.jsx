@@ -4,6 +4,9 @@ import PointsDisplay from 'components/PointsDisplay';
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
+import { toast, ToastContainer } from 'react-toastify';
+import DOMPurify from 'dompurify';
+import 'react-toastify/dist/ReactToastify.css';
 import styles from '../styles/App.module.css';
 
 const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
@@ -68,10 +71,11 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     );
   };
 
-  const addTodo = (title) => {
+  const addTodo = (title, dueDate) => {
     const newTodo = {
       id: uuidv4(),
       title,
+      dueDate,
       completed: false,
     };
     setTodos([newTodo, ...todos]);
@@ -100,6 +104,23 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     const tempPoints = JSON.stringify(points);
     localStorage.setItem('points', tempPoints);
   }, [todos, comments, points]);
+
+  useEffect(() => {
+    const checkDueDates = () => {
+      const now = new Date();
+      todos.forEach((todo) => {
+        if (todo.dueDate && new Date(todo.dueDate) <= now && !todo.completed) {
+          const plainTextTitle = DOMPurify.sanitize(todo.title,
+            { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+          toast.warn(`Task "${plainTextTitle}" is due!`);
+        }
+      });
+    };
+
+    const intervalId = setInterval(checkDueDates, 60000); // Check every minute
+
+    return () => clearInterval(intervalId);
+  }, [todos]);
 
   // Calculate the total number of pages
   const totalPages = Math.ceil(todos.length / todosPerPage);
@@ -143,6 +164,7 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
 
   return (
     <>
+      <ToastContainer />
       <PointsDisplay points={points} />
       <InputTodo addTodo={addTodo} />
       <TodosList

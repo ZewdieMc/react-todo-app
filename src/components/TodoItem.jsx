@@ -155,6 +155,14 @@ const TodoItem = ({
         <span style={itemProp.completed ? completedStyle : null}>
           {/* eslint-disable-next-line */}
           <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(itemProp.title) }} />
+          {itemProp.dueDate && (
+            <span className={styles.dueDate}>
+              {' '}
+              (Due:
+              {new Date(itemProp.dueDate).toLocaleDateString()}
+              )
+            </span>
+          )}
         </span>
         {itemProp.completed ? (
           <div className="completion" style={{ display: 'inline', textDecoration: 'none', fontSize: '30px' }}>
@@ -241,6 +249,7 @@ TodoItem.propTypes = {
     id: PropTypes.string,
     title: PropTypes.string,
     completed: PropTypes.bool,
+    dueDate: PropTypes.string,
   }).isRequired,
   onChange: PropTypes.func.isRequired,
   deleteTodo: PropTypes.func.isRequired,

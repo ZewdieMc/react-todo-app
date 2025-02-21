@@ -4,20 +4,27 @@ import PropTypes from 'prop-types';
 
 const InputTodo = ({ addTodo }) => {
   const [title, setTitle] = useState('');
+  const [dueDate, setDueDate] = useState('');
   const [message, setMessage] = useState('');
 
   const handleChange = (e) => {
     setTitle(e.target.value);
   };
 
+  const handleDateChange = (e) => {
+    setDueDate(e.target.value);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (title.trim()) {
-      addTodo(title);
+      addTodo(title, dueDate);
       setMessage('');
       setTitle('');
-    } else setMessage('please add an item.');
+      setDueDate('');
+    } else setMessage('Please add an item.');
   };
+
   return (
     <>
       <form onSubmit={handleSubmit} className="form-container">
@@ -27,6 +34,12 @@ const InputTodo = ({ addTodo }) => {
           placeholder="Insert todo here..."
           value={title}
           onChange={handleChange}
+        />
+        <input
+          type="date"
+          className="input-date"
+          value={dueDate}
+          onChange={handleDateChange}
         />
         <button type="submit" className="input-submit">
           <FaPlusCircle
