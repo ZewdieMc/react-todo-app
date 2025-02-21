@@ -1,5 +1,6 @@
 import InputTodo from 'components/InputTodo';
 import TodosList from 'components/TodosList';
+import PointsDisplay from 'components/PointsDisplay';
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
@@ -25,17 +26,30 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     return initialComments;
   };
 
+  const getInitialPoints = () => {
+    const temp = localStorage.getItem('points');
+    const savedPoints = JSON.parse(temp);
+    return savedPoints || 0;
+  };
+
   const [todos, setTodos] = useState(getInitialTodos());
   const [comments, setComments] = useState(getInitialComments(getInitialTodos()));
+  const [points, setPoints] = useState(getInitialPoints());
   const [activeCommentId, setActiveCommentId] = useState(null);
 
   const handleChange = (id) => {
     setTodos((prevState) => prevState.map((todo) => {
       if (todo.id === id) {
-        return {
+        const updatedTodo = {
           ...todo,
           completed: !todo.completed,
         };
+        if (updatedTodo.completed) {
+          setPoints((prevPoints) => prevPoints + 10); // Add points for completing a task
+        } else {
+          setPoints((prevPoints) => prevPoints - 10); // Remove points for uncompleting a task
+        }
+        return updatedTodo;
       }
       return todo;
     }));
@@ -83,7 +97,9 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     localStorage.setItem('todos', temp);
     const tempComments = JSON.stringify(comments);
     localStorage.setItem('comments', tempComments);
-  }, [todos, comments]);
+    const tempPoints = JSON.stringify(points);
+    localStorage.setItem('points', tempPoints);
+  }, [todos, comments, points]);
 
   // Calculate the total number of pages
   const totalPages = Math.ceil(todos.length / todosPerPage);
@@ -127,6 +143,7 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
 
   return (
     <>
+      <PointsDisplay points={points} />
       <InputTodo addTodo={addTodo} />
       <TodosList
         todosProps={currentTodos}
