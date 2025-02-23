@@ -79,6 +79,15 @@ const TodoItem = ({
     setShowConfirmModal(false);
   };
 
+  const uploadImageCallBack = (file) => new Promise(
+    (resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve({ data: { link: e.target.result } });
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    },
+  );
+
   const viewMode = {};
   const editMode = { padding: '14px' };
   if (editing) {
@@ -225,6 +234,12 @@ const TodoItem = ({
                   '🎉', '🎊', '🎁', '🎗', '🏀', '🏈', '🎲', '🔇', '🔈', '📣', '🔔', '🎵', '🎷', '💰', '🖊', '📅',
                   '✅', '❎', '💯',
                 ],
+              },
+              image: {
+                uploadCallback: uploadImageCallBack,
+                alt: { present: true, mandatory: false },
+                previewImage: true,
+                inputAccept: 'image/gif,image/jpeg,image/jpg,image/png,image/svg',
               },
             }}
           />
