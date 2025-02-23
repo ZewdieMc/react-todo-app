@@ -96,6 +96,16 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     );
   };
 
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const reorderedTodos = Array.from(todos);
+    const [removed] = reorderedTodos.splice(result.source.index, 1);
+    reorderedTodos.splice(result.destination.index, 0, removed);
+
+    setTodos(reorderedTodos);
+  };
+
   useEffect(() => {
     const temp = JSON.stringify(todos);
     localStorage.setItem('todos', temp);
@@ -180,6 +190,7 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
         setActiveCommentId={setActiveCommentId}
         currentPage={currentPage}
         totalPages={totalPages}
+        onDragEnd={onDragEnd}
       />
       <div className={styles.pagination}>
         {Array.from({ length: totalPages }, (_, index) => (
