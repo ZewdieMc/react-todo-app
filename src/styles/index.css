@@ -4,6 +4,12 @@
   padding: 0;
 }
 
+ul, ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.5;

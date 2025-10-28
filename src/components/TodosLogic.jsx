@@ -4,6 +4,8 @@ import PointsDisplay from 'components/PointsDisplay';
 import NotificationSettings from 'components/NotificationSettings';
 import TodoTabs from 'components/TodoTabs';
 import Pagination from 'components/Pagination';
+import SearchBar from 'components/SearchBar';
+import StorageSettings from 'components/StorageSettings';
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
@@ -43,6 +45,7 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   const [points, setPoints] = useState(getInitialPoints());
   const [activeCommentId, setActiveCommentId] = useState(null);
   const [activeTab, setActiveTab] = useState('active');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const getInitialReminders = () => {
     const temp = localStorage.getItem('reminders');
@@ -245,7 +248,26 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   // Filter todos based on active tab
   const activeTodos = todos.filter((todo) => !todo.completed);
   const completedTodos = todos.filter((todo) => todo.completed);
-  const displayedTodos = activeTab === 'active' ? activeTodos : completedTodos;
+  const filteredByTab = activeTab === 'active' ? activeTodos : completedTodos;
+
+  // Further filter by search term
+  const displayedTodos = filteredByTab.filter((todo) => {
+    if (!searchTerm) return true;
+
+    const plainTextTitle = DOMPurify.sanitize(todo.title, {
+      ALLOWED_TAGS: [],
+      ALLOWED_ATTR: [],
+    }).toLowerCase();
+
+    const comment = comments[todo.id] || '';
+    const plainTextComment = DOMPurify.sanitize(comment, {
+      ALLOWED_TAGS: [],
+      ALLOWED_ATTR: [],
+    }).toLowerCase();
+
+    return plainTextTitle.includes(searchTerm.toLowerCase())
+      || plainTextComment.includes(searchTerm.toLowerCase());
+  });
 
   // Calculate the total number of pages based on filtered todos
   const totalPages = Math.ceil(displayedTodos.length / todosPerPage);
@@ -303,14 +325,42 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     onPageChange(1); // Reset to first page when switching tabs
   };
 
+  // Handle search
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    onPageChange(1); // Reset to first page when searching
+  };
+
+  // Handle data loaded from cloud storage
+  const handleDataLoaded = (data) => {
+    if (data.todos) setTodos(data.todos);
+    if (data.comments) setComments(data.comments);
+    if (data.reminders) setReminders(data.reminders);
+    if (data.points !== undefined) setPoints(data.points);
+  };
+
   return (
     <>
       <ToastContainer />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '1rem',
+      }}
+      >
         <PointsDisplay points={points} />
         <NotificationSettings />
       </div>
+      <StorageSettings
+        todos={todos}
+        comments={comments}
+        reminders={reminders}
+        points={points}
+        onDataLoaded={handleDataLoaded}
+      />
       <InputTodo addTodo={addTodo} />
+      <SearchBar onSearch={handleSearch} />
       <TodoTabs
         activeCount={activeTodos.length}
         completedCount={completedTodos.length}
