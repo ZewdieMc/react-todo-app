@@ -28,6 +28,7 @@ class CloudStorageService {
       }, { merge: true });
       return { success: true };
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error saving todos:', error);
       return { success: false, error: error.message };
     }
@@ -42,6 +43,7 @@ class CloudStorageService {
       }, { merge: true });
       return { success: true };
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error saving comments:', error);
       return { success: false, error: error.message };
     }
@@ -56,6 +58,7 @@ class CloudStorageService {
       }, { merge: true });
       return { success: true };
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error saving reminders:', error);
       return { success: false, error: error.message };
     }
@@ -70,6 +73,7 @@ class CloudStorageService {
       }, { merge: true });
       return { success: true };
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error saving points:', error);
       return { success: false, error: error.message };
     }
@@ -90,13 +94,14 @@ class CloudStorageService {
         remindersCount: Object.keys(data.reminders || {}).length,
         points: data.points,
       });
-      
+
       await setDoc(this.userDocRef, dataToSave, { merge: true });
-      
+
       // eslint-disable-next-line no-console
       console.log('✅ Successfully saved to Firestore');
       return { success: true };
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error saving data:', error);
       return { success: false, error: error.message };
     }
@@ -111,6 +116,7 @@ class CloudStorageService {
       }
       return { success: true, data: null };
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error loading data:', error);
       return { success: false, error: error.message };
     }
@@ -123,6 +129,7 @@ class CloudStorageService {
         callback(doc.data());
       }
     }, (error) => {
+      // eslint-disable-next-line no-console
       console.error('Error subscribing to updates:', error);
     });
   }
@@ -133,6 +140,7 @@ class CloudStorageService {
       await deleteDoc(this.userDocRef);
       return { success: true };
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error deleting data:', error);
       return { success: false, error: error.message };
     }
