@@ -1,11 +1,13 @@
 import InputTodo from 'components/InputTodo';
 import TodosList from 'components/TodosList';
 import PointsDisplay from 'components/PointsDisplay';
+import NotificationSettings from 'components/NotificationSettings';
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
 import { toast, ToastContainer } from 'react-toastify';
 import DOMPurify from 'dompurify';
+import notificationSound from 'utils/notificationSound';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from '../styles/App.module.css';
 
@@ -40,6 +42,60 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   const [points, setPoints] = useState(getInitialPoints());
   const [activeCommentId, setActiveCommentId] = useState(null);
 
+  const getInitialReminders = () => {
+    const temp = localStorage.getItem('reminders');
+    const savedReminders = JSON.parse(temp);
+    return savedReminders || {};
+  };
+
+  const [reminders, setReminders] = useState(getInitialReminders());
+  const [notifiedReminders, setNotifiedReminders] = useState(new Set());
+
+  // Request notification permission on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  const handleSaveReminder = (todoId, reminderTime) => {
+    setReminders((prev) => ({
+      ...prev,
+      [todoId]: reminderTime,
+    }));
+  };
+
+  const getReminderMilliseconds = (reminderType) => {
+    const timeMap = {
+      '5-min': 5 * 60 * 1000,
+      '15-min': 15 * 60 * 1000,
+      '30-min': 30 * 60 * 1000,
+      '1-hour': 60 * 60 * 1000,
+      '2-hour': 2 * 60 * 60 * 1000,
+      '1-day': 24 * 60 * 60 * 1000,
+      '2-day': 2 * 24 * 60 * 60 * 1000,
+      '1-week': 7 * 24 * 60 * 60 * 1000,
+    };
+    return timeMap[reminderType] || 0;
+  };
+
+  const showBrowserNotification = (title, body) => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const notification = new Notification(title, {
+        body,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        tag: 'todo-reminder',
+        requireInteraction: true,
+      });
+
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+      };
+    }
+  };
+
   const handleChange = (id) => {
     setTodos((prevState) => prevState.map((todo) => {
       if (todo.id === id) {
@@ -49,6 +105,7 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
         };
         if (updatedTodo.completed) {
           setPoints((prevPoints) => prevPoints + 10); // Add points for completing a task
+          notificationSound.playSuccess(); // Play success sound
         } else {
           setPoints((prevPoints) => prevPoints - 10); // Remove points for uncompleting a task
         }
@@ -69,6 +126,11 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     setTodos(
       [...todos.filter((todo) => todo.id !== id)],
     );
+    setReminders((prev) => {
+      const newReminders = { ...prev };
+      delete newReminders[id];
+      return newReminders;
+    });
   };
 
   const addTodo = (title, dueDate) => {
@@ -113,24 +175,70 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     localStorage.setItem('comments', tempComments);
     const tempPoints = JSON.stringify(points);
     localStorage.setItem('points', tempPoints);
-  }, [todos, comments, points]);
+    const tempReminders = JSON.stringify(reminders);
+    localStorage.setItem('reminders', tempReminders);
+  }, [todos, comments, points, reminders]);
 
   useEffect(() => {
-    const checkDueDates = () => {
+    const checkReminders = () => {
       const now = new Date();
+
       todos.forEach((todo) => {
-        if (todo.dueDate && new Date(todo.dueDate) <= now && !todo.completed) {
-          const plainTextTitle = DOMPurify.sanitize(todo.title,
-            { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
-          toast.warn(`Task "${plainTextTitle}" is due!`);
+        if (!todo.dueDate || todo.completed) return;
+
+        const dueDate = new Date(todo.dueDate);
+        const reminderSetting = reminders[todo.id] || 'none';
+
+        if (reminderSetting === 'none') return;
+
+        const reminderMs = getReminderMilliseconds(reminderSetting);
+        const reminderTime = new Date(dueDate.getTime() - reminderMs);
+        const notificationKey = `${todo.id}-${reminderSetting}`;
+
+        // Check if reminder time has passed and we haven't notified yet
+        if (now >= reminderTime && !notifiedReminders.has(notificationKey)) {
+          const plainTextTitle = DOMPurify.sanitize(todo.title, {
+            ALLOWED_TAGS: [],
+            ALLOWED_ATTR: [],
+          });
+
+          const timeUntilDue = Math.ceil((dueDate - now) / (1000 * 60)); // minutes
+
+          let message;
+          if (timeUntilDue > 0) {
+            const hours = Math.floor(timeUntilDue / 60);
+            const minutes = timeUntilDue % 60;
+            const timeString = hours > 0
+              ? `${hours}h ${minutes}m`
+              : `${minutes}m`;
+
+            message = `⏰ Reminder: "${plainTextTitle}" is due in ${timeString}!`;
+            toast.info(message, {
+              autoClose: 8000,
+            });
+          } else {
+            message = `⚠️ Task "${plainTextTitle}" is overdue!`;
+            toast.warn(message, {
+              autoClose: 8000,
+            });
+          }
+
+          // Play notification sound
+          notificationSound.playNotification();
+
+          // Show browser notification
+          showBrowserNotification('Todo Reminder', message);
+
+          setNotifiedReminders((prev) => new Set([...prev, notificationKey]));
         }
       });
     };
 
-    const intervalId = setInterval(checkDueDates, 60000); // Check every minute
+    const intervalId = setInterval(checkReminders, 60000); // Check every minute
+    checkReminders(); // Check immediately on mount
 
     return () => clearInterval(intervalId);
-  }, [todos]);
+  }, [todos, reminders, notifiedReminders]);
 
   // Calculate the total number of pages
   const totalPages = Math.ceil(todos.length / todosPerPage);
@@ -175,7 +283,10 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   return (
     <>
       <ToastContainer />
-      <PointsDisplay points={points} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <PointsDisplay points={points} />
+        <NotificationSettings />
+      </div>
       <InputTodo addTodo={addTodo} />
       <TodosList
         todosProps={currentTodos}
@@ -191,6 +302,8 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
         currentPage={currentPage}
         totalPages={totalPages}
         onDragEnd={onDragEnd}
+        reminders={reminders}
+        handleSaveReminder={handleSaveReminder}
       />
       <div className={styles.pagination}>
         {Array.from({ length: totalPages }, (_, index) => (

@@ -6,6 +6,7 @@ import TodoItem from 'components/TodoItem';
 const TodosList = ({
   todosProps, handleChange, deleteTodo, setUpdate, moveUp, moveDown, comments,
   handleCommentChange, activeCommentId, setActiveCommentId, currentPage, totalPages, onDragEnd,
+  reminders, handleSaveReminder,
 }) => (
   <DragDropContext onDragEnd={onDragEnd}>
     <Droppable droppableId="todos">
@@ -40,6 +41,8 @@ const TodosList = ({
                     setActiveCommentId={setActiveCommentId}
                     currentPage={currentPage}
                     totalPages={totalPages}
+                    reminder={reminders[todo.id]}
+                    onSaveReminder={handleSaveReminder}
                   />
                 </li>
               )}
@@ -70,6 +73,8 @@ TodosList.propTypes = {
   currentPage: PropTypes.number.isRequired,
   totalPages: PropTypes.number.isRequired,
   onDragEnd: PropTypes.func.isRequired,
+  reminders: PropTypes.objectOf(PropTypes.string).isRequired,
+  handleSaveReminder: PropTypes.func.isRequired,
 };
 
 TodosList.defaultProps = {

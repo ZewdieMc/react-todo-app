@@ -1,6 +1,52 @@
 .pointsContainer {
-  text-align: center;
   margin-bottom: 20px;
-  font-size: 1.5rem;
-  color: #007bff;
+  padding: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+}
+
+.pointsContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+}
+
+.icon {
+  font-size: 24px;
+  color: #ffd700;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.points {
+  font-size: 28px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 16px;
+  border-radius: 20px;
+}
+
+@media (max-width: 600px) {
+  .pointsContainer {
+    padding: 12px;
+  }
+
+  .icon {
+    font-size: 20px;
+  }
+
+  .label {
+    font-size: 13px;
+  }
+
+  .points {
+    font-size: 24px;
+    padding: 4px 12px;
+  }
 }

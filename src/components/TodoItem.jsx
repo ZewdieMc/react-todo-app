@@ -11,11 +11,12 @@ import { FaTrash, FaCommentDots } from 'react-icons/fa';
 import { GoChevronUp, GoChevronDown } from 'react-icons/go';
 import ConfirmModal from 'components/ConfirmModal';
 import styles from 'styles/TodoItem.module.css';
+import ReminderSettings from './ReminderSettings';
 
 const TodoItem = ({
   itemProp, index, onChange, deleteTodo, setUpdate, moveUp,
   moveDown, size, comments, handleCommentChange, activeCommentId, setActiveCommentId,
-  currentPage, totalPages,
+  currentPage, totalPages, reminder, onSaveReminder,
 }) => {
   const [editing, setEditing] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -114,30 +115,38 @@ const TodoItem = ({
           type="checkbox"
           checked={itemProp.completed}
           onChange={() => onChange(itemProp.id)}
-          style={{ transform: 'scale(2)', color: 'green', marginRight: '20px' }}
         />
-        <button type="button" onClick={handleEditing}>
-          <AiFillEdit style={{ color: 'blue', fontSize: '16px' }} />
+        <button type="button" onClick={handleEditing} title="Edit task">
+          <AiFillEdit style={{ color: '#666', fontSize: '16px' }} />
         </button>
         <button
           type="button"
           className={`${styles.button} ${styles['hide-on-mobile']}`}
           onClick={handleDelete}
+          title="Delete task"
         >
-          <FaTrash style={{ color: 'gray', fontSize: '16px' }} />
+          <FaTrash style={{ color: '#666', fontSize: '16px' }} />
         </button>
         <button type="button" onClick={toggleComment} title={commentTooltip}>
-          <FaCommentDots style={{ color: 'orange', fontSize: '16px' }} />
+          <FaCommentDots style={{ color: '#666', fontSize: '16px' }} />
         </button>
+        {itemProp.dueDate && (
+          <ReminderSettings
+            todoId={itemProp.id}
+            reminder={reminder}
+            onSaveReminder={onSaveReminder}
+          />
+        )}
         {activeCommentId === itemProp.id && (
           <div className={styles.commentPopup}>
             <textarea
               className={styles.textarea}
               value={comments && comments[itemProp.id] ? comments[itemProp.id] : ''}
               onChange={(e) => handleCommentChange(itemProp.id, e.target.value)}
+              placeholder="Add a comment..."
             />
             <button type="button" onClick={handleCommentSave} title="Save Comment">
-              <AiFillSave style={{ color: 'green', fontSize: '24px' }} />
+              <AiFillSave style={{ color: '#dc4c3e', fontSize: '24px' }} />
             </button>
           </div>
         )}
@@ -147,8 +156,9 @@ const TodoItem = ({
               type="button"
               onClick={() => moveUp(index)}
               aria-label="Move up"
+              title="Move task up"
             >
-              <GoChevronUp style={{ color: 'green', fontSize: '26px' }} />
+              <GoChevronUp style={{ color: '#666', fontSize: '20px' }} />
             </button>
           )}
           {globalIndex < size * totalPages - 1 && (
@@ -156,8 +166,9 @@ const TodoItem = ({
               type="button"
               onClick={() => moveDown(index)}
               aria-label="Move down"
+              title="Move task down"
             >
-              <GoChevronDown style={{ color: 'red', fontSize: '26px' }} />
+              <GoChevronDown style={{ color: '#666', fontSize: '20px' }} />
             </button>
           )}
         </div>
@@ -167,19 +178,20 @@ const TodoItem = ({
           {itemProp.dueDate && (
             <span className={styles.dueDate}>
               {' '}
-              (Due:
-              {new Date(itemProp.dueDate).toLocaleDateString()}
-              )
+              Due:
+              {' '}
+              {new Date(itemProp.dueDate).toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+              })}
             </span>
           )}
         </span>
-        {itemProp.completed ? (
-          <div className="completion" style={{ display: 'inline', textDecoration: 'none', fontSize: '30px' }}>
-            😍
-          </div>
-        ) : (
-          <div className="completion" style={{ display: 'inline', textDecoration: 'none', fontSize: '30px' }}>
-            😣
+        {itemProp.completed && (
+          <div className="completion" style={{ display: 'inline', textDecoration: 'none', fontSize: '20px' }}>
+            ✓
           </div>
         )}
       </div>
@@ -279,10 +291,13 @@ TodoItem.propTypes = {
   setActiveCommentId: PropTypes.func.isRequired,
   currentPage: PropTypes.number.isRequired,
   totalPages: PropTypes.number.isRequired,
+  reminder: PropTypes.string,
+  onSaveReminder: PropTypes.func.isRequired,
 };
 
 TodoItem.defaultProps = {
   activeCommentId: null,
+  reminder: null,
 };
 
 export default TodoItem;
