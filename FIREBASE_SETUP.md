@@ -119,6 +119,46 @@ To enable cross-device sync, you need to enable Google Sign-In:
 - ✅ Secure authentication handled by Google
 - ✅ Same todo list across all devices where you sign in
 
+## Step 6: Enable Google Authentication
+
+To enable cross-device sync, you need to set up Google Sign-In:
+
+### Finding Authentication in Firebase Console:
+
+**Method 1: Using the Left Sidebar**
+1. In the Firebase Console, look at the **left sidebar menu**
+2. Under the "Build" section, you should see:
+   - **Authentication** ← Click this one
+   - Firestore Database
+   - Storage
+   - Hosting
+   - Functions
+
+**Method 2: Direct Link**
+1. Go to: `https://console.firebase.google.com/project/YOUR_PROJECT_ID/authentication`
+2. Replace `YOUR_PROJECT_ID` with your actual project ID
+
+### Enabling Google Sign-In:
+
+1. Click on **"Authentication"** in the left sidebar
+2. Click the **"Get started"** button (if first time)
+3. Go to the **"Sign-in method"** tab
+4. You'll see a list of sign-in providers (Google, Email/Password, Facebook, etc.)
+5. Find **"Google"** in the list
+6. Click on **"Google"** to expand it
+7. Click the **"Enable"** toggle switch (top right)
+8. You'll see configuration options:
+   - **Project public-facing name**: Enter your app name (e.g., "React Todo App")
+   - **Project support email**: Select your email from the dropdown
+9. Click **"Save"**
+10. Google Sign-In is now enabled! ✅
+
+### What This Enables:
+
+- ✅ Users can sign in with their Google account
+- ✅ One-click authentication (no password to remember)
+- ✅ Same todo list across all devices where you sign in
+
 ## Step 7: Configure Security Rules
 
 Now that authentication is enabled, update your security rules:
@@ -144,24 +184,51 @@ service cloud.firestore {
    - Users can only read/write their own data
    - Data is secure and private
 
-## Step 8: Restart Your Development Server
-   - GitHub
-   - etc.
-
 ## Step 8: Test Your Setup
 
-1. Restart your development server:
+1. **Restart your development server:**
    ```bash
    npm start
    ```
 
-2. Open the app in your browser
-3. Click the "Cloud" button in the Storage Settings
-4. Add a todo and check if it syncs
-5. Open the app in a different browser or device with the same Firebase project
-6. You should see your todos synced!
+2. **Test Google Sign-In:**
+   - Open the app in your browser
+   - Look for the **"Sign in with Google"** button at the top
+   - Click it to sign in with your Google account
+   - You should see your profile picture and name after signing in
+
+3. **Test Cloud Sync:**
+   - After signing in, switch storage mode to **"Cloud"**
+   - Add a todo and it will automatically sync
+   - Open the app on a different device or browser
+   - Sign in with the same Google account
+   - Switch to Cloud mode - your todos should appear!
+
+4. **Test Cross-Device Sync:**
+   - Keep the app open on two devices/browsers
+   - Sign in with the same Google account on both
+   - Both should use Cloud storage mode
+   - Add a todo on one device
+   - It should automatically appear on the other device within 2 seconds!
 
 ## Troubleshooting
+
+### Can't Find "Authentication" Option
+
+**If you don't see "Authentication" in the left sidebar:**
+
+1. **Check if you're in the right project:**
+   - Look at the top of the page - you should see your project name
+   - Click the project name dropdown to switch projects if needed
+
+2. **Expand the "Build" section:**
+   - In the left sidebar, look for a section header called "Build"
+   - Click on it to expand if it's collapsed
+   - Authentication should be listed under this section
+
+3. **Use the direct URL:**
+   - Go to `https://console.firebase.google.com/project/YOUR_PROJECT_ID/authentication`
+   - Replace `YOUR_PROJECT_ID` with your actual project ID
 
 ### Can't Find "Firestore Database" Option
 
