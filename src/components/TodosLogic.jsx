@@ -6,6 +6,7 @@ import TodoTabs from 'components/TodoTabs';
 import Pagination from 'components/Pagination';
 import SearchBar from 'components/SearchBar';
 import StorageSettings from 'components/StorageSettings';
+import AuthPanel from 'components/AuthPanel';
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
@@ -46,6 +47,12 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   const [activeCommentId, setActiveCommentId] = useState(null);
   const [activeTab, setActiveTab] = useState('active');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Handle authentication state changes
+  const handleAuthChange = (user) => {
+    setCurrentUser(user);
+  };
 
   const getInitialReminders = () => {
     const temp = localStorage.getItem('reminders');
@@ -352,12 +359,14 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
         <PointsDisplay points={points} />
         <NotificationSettings />
       </div>
+      <AuthPanel onAuthChange={handleAuthChange} />
       <StorageSettings
         todos={todos}
         comments={comments}
         reminders={reminders}
         points={points}
         onDataLoaded={handleDataLoaded}
+        userId={currentUser?.uid || 'anonymous'}
       />
       <InputTodo addTodo={addTodo} />
       <SearchBar onSearch={handleSearch} />

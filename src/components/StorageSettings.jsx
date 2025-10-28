@@ -11,11 +11,19 @@ const StorageSettings = ({
   reminders,
   points,
   onDataLoaded,
+  userId,
 }) => {
   const [storageMode, setStorageMode] = useState('local');
   const [isSyncing, setIsSyncing] = useState(false);
   const [cloudService] = useState(new CloudStorageService());
   const [lastSyncTime, setLastSyncTime] = useState(null);
+
+  // Update cloud service user ID when it changes
+  useEffect(() => {
+    if (userId) {
+      cloudService.setUserId(userId);
+    }
+  }, [userId, cloudService]);
 
   const loadFromCloud = useCallback(async () => {
     setIsSyncing(true);
@@ -149,6 +157,11 @@ StorageSettings.propTypes = {
   reminders: PropTypes.shape({}).isRequired,
   points: PropTypes.number.isRequired,
   onDataLoaded: PropTypes.func.isRequired,
+  userId: PropTypes.string,
+};
+
+StorageSettings.defaultProps = {
+  userId: 'anonymous',
 };
 
 export default StorageSettings;

@@ -1,0 +1,180 @@
+.authPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 16px;
+}
+
+.signInPrompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  color: #666;
+  padding: 12px 0;
+}
+
+.signInPrompt .icon {
+  font-size: 32px;
+  color: #dc4c3e;
+}
+
+.signInPrompt p {
+  font-size: 14px;
+  margin: 0;
+}
+
+.signInButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background-color: #dc4c3e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.signInButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.signInButton:hover:not(:disabled) {
+  background-color: #c73d30;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 76, 62, 0.3);
+}
+
+.signInButton svg {
+  font-size: 16px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e0e0e0;
+}
+
+.avatarPlaceholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  border: 2px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 20px;
+}
+
+.userDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.userEmail {
+  font-size: 12px;
+  color: #666;
+}
+
+.signOutButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background-color: #fff;
+  color: #666;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.signOutButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.signOutButton:hover:not(:disabled) {
+  background-color: #f5f5f5;
+  border-color: #dc4c3e;
+  color: #dc4c3e;
+}
+
+.signOutButton svg {
+  font-size: 14px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .authPanel {
+    padding: 12px;
+  }
+
+  .signInPrompt .icon {
+    font-size: 28px;
+  }
+
+  .signInPrompt p {
+    font-size: 13px;
+  }
+
+  .signInButton {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+
+  .avatar,
+  .avatarPlaceholder {
+    width: 36px;
+    height: 36px;
+  }
+
+  .avatarPlaceholder {
+    font-size: 18px;
+  }
+
+  .userName {
+    font-size: 13px;
+  }
+
+  .userEmail {
+    font-size: 11px;
+  }
+
+  .signOutButton {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}

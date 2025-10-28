@@ -100,18 +100,37 @@ const firebaseConfig = {
 3. Wait a few seconds while Firebase creates your database
 4. You'll see an empty database with tabs: Data, Rules, Indexes, Usage
 
-## Step 6: Configure Security Rules (Optional but Recommended)
+## Step 6: Enable Google Sign-In Authentication
 
-For production, you should set up proper security rules:
+To enable cross-device sync, you need to enable Google Sign-In:
+
+1. In the Firebase Console, go to **"Authentication"** in the left sidebar
+2. Click on the **"Sign-in method"** tab
+3. Click on **"Google"** in the providers list
+4. Toggle the **"Enable"** switch to ON
+5. Fill in the required fields:
+   - **Project public-facing name**: Your app name (e.g., "Todo App")
+   - **Project support email**: Your email address
+6. Click **"Save"**
+
+**Why Google Sign-In?**
+- ✅ Enables true cross-device sync
+- ✅ No password management needed
+- ✅ Secure authentication handled by Google
+- ✅ Same todo list across all devices where you sign in
+
+## Step 7: Configure Security Rules
+
+Now that authentication is enabled, update your security rules:
 
 1. In Firestore Database, go to the "Rules" tab
-2. Replace the default rules with:
+2. Replace the rules with:
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow users to read/write only their own data
+    // Allow authenticated users to read/write only their own data
     match /users/{userId}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
@@ -119,16 +138,13 @@ service cloud.firestore {
 }
 ```
 
-## Step 7: Set Up Firebase Authentication (Optional)
+3. Click **"Publish"** to apply the rules
+4. These rules ensure:
+   - Only authenticated users can access the database
+   - Users can only read/write their own data
+   - Data is secure and private
 
-If you want users to have individual accounts:
-
-1. In the Firebase Console, click "Authentication" in the left sidebar
-2. Click "Get started"
-3. Go to the "Sign-in method" tab
-4. Enable your preferred sign-in providers:
-   - Email/Password (simplest)
-   - Google
+## Step 8: Restart Your Development Server
    - GitHub
    - etc.
 
