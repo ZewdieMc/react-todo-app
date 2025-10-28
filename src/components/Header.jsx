@@ -1,21 +1,14 @@
+import { FaCheckCircle } from 'react-icons/fa';
 import styles from 'styles/Header.module.css';
 
-const Header = () => {
-  const headerStyle = {
-    padding: '20px 0',
-    lineHeight: '1.5em',
-    color: '#aeadad',
-    textAlign: 'center',
-  };
+const Header = () => (
+  <header className={styles.header}>
+    <div className={styles.headerContent}>
+      <FaCheckCircle className={styles.icon} />
+      <h1 className={styles.title}>My Tasks</h1>
+    </div>
+    <p className={styles.subtitle}>Stay organized and productive with smart reminders</p>
+  </header>
+);
 
-  return (
-    <header
-      style={headerStyle}
-      className={styles.header}
-    >
-      <h1>Todos</h1>
-      <p>Items will persist in the browser local storage</p>
-    </header>
-  );
-};
 export default Header;

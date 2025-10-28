@@ -1,0 +1,122 @@
+.storageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background-color: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.storageOptions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.storageButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 2px solid #e0e0e0;
+  background-color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.storageButton:hover {
+  border-color: #dc4c3e;
+  background-color: #fef5f4;
+}
+
+.storageButton.active {
+  border-color: #dc4c3e;
+  background-color: #dc4c3e;
+  color: #fff;
+}
+
+.storageButton svg {
+  font-size: 16px;
+}
+
+.syncButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #dc4c3e;
+  background-color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #dc4c3e;
+  transition: all 0.2s ease;
+}
+
+.syncButton:hover {
+  background-color: #dc4c3e;
+  color: #fff;
+}
+
+.syncButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.syncButton svg {
+  font-size: 16px;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.syncInfo {
+  font-size: 12px;
+  color: #666;
+  text-align: left;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .storageContainer {
+    padding: 10px;
+  }
+
+  .storageButton {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .storageButton span {
+    display: none;
+  }
+
+  .storageButton svg {
+    font-size: 18px;
+  }
+
+  .syncButton {
+    width: 36px;
+    height: 36px;
+  }
+
+  .syncInfo {
+    font-size: 11px;
+  }
+}

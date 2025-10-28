@@ -1,0 +1,132 @@
+.reminderContainer {
+  position: relative;
+  display: inline-block;
+  margin-left: 4px;
+}
+
+.reminderButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 4px;
+  color: #666;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reminderButton:hover {
+  background-color: #f3f3f3;
+  color: #333;
+}
+
+.reminderButton.active {
+  color: #dc4c3e;
+}
+
+.reminderButton.active:hover {
+  background-color: #fff0ef;
+}
+
+.reminderDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 240px;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownHeader {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f3f3;
+  font-weight: 600;
+  font-size: 13px;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.reminderOptions {
+  padding: 4px 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.reminderOption {
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 0.15s ease;
+  font-size: 14px;
+  color: #333;
+}
+
+.reminderOption:hover {
+  background-color: #f9f9f9;
+}
+
+.reminderOption.selected {
+  background-color: #fff0ef;
+  color: #dc4c3e;
+}
+
+.optionIcon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.optionLabel {
+  flex: 1;
+}
+
+.checkmark {
+  color: #dc4c3e;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Scrollbar styling */
+.reminderOptions::-webkit-scrollbar {
+  width: 8px;
+}
+
+.reminderOptions::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.reminderOptions::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.reminderOptions::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}

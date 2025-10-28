@@ -48,10 +48,21 @@ React Todo is an application that is developed with ReactJs. It is used to add, 
 
 ### Key Features <a name="key-features"></a>
 
-- Displays todo items.
-- Add todo item
-- Update todo item
-- Delete todo item
+- ✅ **Add, edit, and delete tasks** - Full CRUD operations for todo items
+- 🔍 **Search functionality** - Filter tasks by title or comments
+- 📅 **Due dates with date/time picker** - Set specific deadlines for your tasks
+- ⏰ **Smart reminders** - Get notified before tasks are due (5 min to 1 week options)
+- 🔔 **Sound & browser notifications** - Audio alerts and desktop notifications
+- 📊 **Points system** - Earn 10 points for each completed task
+- 📑 **Active/Completed tabs** - Organize tasks by completion status
+- 📄 **Pagination** - Smart pagination with ellipsis for large lists
+- 💾 **Dual storage options**:
+  - 🖥️ Local storage (browser-based)
+  - ☁️ Cloud storage (Firebase - access across devices)
+- 📱 **Mobile responsive** - Works seamlessly on all screen sizes
+- 🎨 **Todoist-inspired UI** - Modern, clean interface with smooth animations
+- 💬 **Comments on tasks** - Add detailed notes to your todos
+- 🎯 **Drag and drop** - Reorder tasks easily
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -92,12 +103,26 @@ Install this project with:
   npm install
 ```
 
+### Firebase Setup (Optional - For Cloud Storage)
+
+To enable cloud storage and sync across devices:
+
+1. Follow the detailed instructions in [FIREBASE_SETUP.md](./FIREBASE_SETUP.md)
+2. Create a `.env` file from the example:
+   ```sh
+   cp .env.example .env
+   ```
+3. Add your Firebase credentials to the `.env` file
+4. Restart the development server
+
+**Note**: The app works perfectly with local storage without Firebase setup. Cloud storage is optional for cross-device synchronization.
+
 ### Usage
 
 To run the project:
 ```sh
   npm start
-``` 
+```
 
 ### Run tests
 

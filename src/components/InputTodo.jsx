@@ -1,27 +1,29 @@
 import { useState } from 'react';
 import { FaPlusCircle } from 'react-icons/fa';
 import PropTypes from 'prop-types';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const InputTodo = ({ addTodo }) => {
   const [title, setTitle] = useState('');
-  const [dueDate, setDueDate] = useState('');
+  const [dueDate, setDueDate] = useState(null);
   const [message, setMessage] = useState('');
 
   const handleChange = (e) => {
     setTitle(e.target.value);
   };
 
-  const handleDateChange = (e) => {
-    setDueDate(e.target.value);
+  const handleDateChange = (date) => {
+    setDueDate(date);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (title.trim()) {
-      addTodo(title, dueDate);
+      addTodo(title, dueDate ? dueDate.toISOString() : null);
       setMessage('');
       setTitle('');
-      setDueDate('');
+      setDueDate(null);
     } else setMessage('Please add an item.');
   };
 
@@ -31,21 +33,27 @@ const InputTodo = ({ addTodo }) => {
         <input
           type="text"
           className="input-text"
-          placeholder="Insert todo here..."
+          placeholder="Add a task... (e.g., 'Buy groceries')"
           value={title}
           onChange={handleChange}
         />
-        <input
-          type="date"
-          className="input-date"
-          value={dueDate}
+        <DatePicker
+          selected={dueDate}
           onChange={handleDateChange}
+          showTimeSelect
+          timeFormat="HH:mm"
+          timeIntervals={15}
+          dateFormat="MMM d, yyyy h:mm aa"
+          placeholderText="Set due date & time"
+          className="input-date"
+          minDate={new Date()}
+          isClearable
         />
         <button type="submit" className="input-submit">
           <FaPlusCircle
             style={{
-              color: 'green',
-              fontSize: '20px',
+              color: '#dc4c3e',
+              fontSize: '24px',
               marginTop: '2px',
             }}
           />

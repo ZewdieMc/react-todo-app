@@ -1,13 +1,18 @@
 import InputTodo from 'components/InputTodo';
 import TodosList from 'components/TodosList';
 import PointsDisplay from 'components/PointsDisplay';
+import NotificationSettings from 'components/NotificationSettings';
+import TodoTabs from 'components/TodoTabs';
+import Pagination from 'components/Pagination';
+import SearchBar from 'components/SearchBar';
+import StorageSettings from 'components/StorageSettings';
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
 import { toast, ToastContainer } from 'react-toastify';
 import DOMPurify from 'dompurify';
+import notificationSound from 'utils/notificationSound';
 import 'react-toastify/dist/ReactToastify.css';
-import styles from '../styles/App.module.css';
 
 const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   const getInitialTodos = () => {
@@ -39,6 +44,62 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   const [comments, setComments] = useState(getInitialComments(getInitialTodos()));
   const [points, setPoints] = useState(getInitialPoints());
   const [activeCommentId, setActiveCommentId] = useState(null);
+  const [activeTab, setActiveTab] = useState('active');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const getInitialReminders = () => {
+    const temp = localStorage.getItem('reminders');
+    const savedReminders = JSON.parse(temp);
+    return savedReminders || {};
+  };
+
+  const [reminders, setReminders] = useState(getInitialReminders());
+  const [notifiedReminders, setNotifiedReminders] = useState(new Set());
+
+  // Request notification permission on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  const handleSaveReminder = (todoId, reminderTime) => {
+    setReminders((prev) => ({
+      ...prev,
+      [todoId]: reminderTime,
+    }));
+  };
+
+  const getReminderMilliseconds = (reminderType) => {
+    const timeMap = {
+      '5-min': 5 * 60 * 1000,
+      '15-min': 15 * 60 * 1000,
+      '30-min': 30 * 60 * 1000,
+      '1-hour': 60 * 60 * 1000,
+      '2-hour': 2 * 60 * 60 * 1000,
+      '1-day': 24 * 60 * 60 * 1000,
+      '2-day': 2 * 24 * 60 * 60 * 1000,
+      '1-week': 7 * 24 * 60 * 60 * 1000,
+    };
+    return timeMap[reminderType] || 0;
+  };
+
+  const showBrowserNotification = (title, body) => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const notification = new Notification(title, {
+        body,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        tag: 'todo-reminder',
+        requireInteraction: true,
+      });
+
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+      };
+    }
+  };
 
   const handleChange = (id) => {
     setTodos((prevState) => prevState.map((todo) => {
@@ -49,6 +110,7 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
         };
         if (updatedTodo.completed) {
           setPoints((prevPoints) => prevPoints + 10); // Add points for completing a task
+          notificationSound.playSuccess(); // Play success sound
         } else {
           setPoints((prevPoints) => prevPoints - 10); // Remove points for uncompleting a task
         }
@@ -69,6 +131,11 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     setTodos(
       [...todos.filter((todo) => todo.id !== id)],
     );
+    setReminders((prev) => {
+      const newReminders = { ...prev };
+      delete newReminders[id];
+      return newReminders;
+    });
   };
 
   const addTodo = (title, dueDate) => {
@@ -113,35 +180,110 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     localStorage.setItem('comments', tempComments);
     const tempPoints = JSON.stringify(points);
     localStorage.setItem('points', tempPoints);
-  }, [todos, comments, points]);
+    const tempReminders = JSON.stringify(reminders);
+    localStorage.setItem('reminders', tempReminders);
+  }, [todos, comments, points, reminders]);
 
   useEffect(() => {
-    const checkDueDates = () => {
+    const checkReminders = () => {
       const now = new Date();
+
       todos.forEach((todo) => {
-        if (todo.dueDate && new Date(todo.dueDate) <= now && !todo.completed) {
-          const plainTextTitle = DOMPurify.sanitize(todo.title,
-            { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
-          toast.warn(`Task "${plainTextTitle}" is due!`);
+        if (!todo.dueDate || todo.completed) return;
+
+        const dueDate = new Date(todo.dueDate);
+        const reminderSetting = reminders[todo.id] || 'none';
+
+        if (reminderSetting === 'none') return;
+
+        const reminderMs = getReminderMilliseconds(reminderSetting);
+        const reminderTime = new Date(dueDate.getTime() - reminderMs);
+        const notificationKey = `${todo.id}-${reminderSetting}`;
+
+        // Check if reminder time has passed and we haven't notified yet
+        if (now >= reminderTime && !notifiedReminders.has(notificationKey)) {
+          const plainTextTitle = DOMPurify.sanitize(todo.title, {
+            ALLOWED_TAGS: [],
+            ALLOWED_ATTR: [],
+          });
+
+          const timeUntilDue = Math.ceil((dueDate - now) / (1000 * 60)); // minutes
+
+          let message;
+          if (timeUntilDue > 0) {
+            const hours = Math.floor(timeUntilDue / 60);
+            const minutes = timeUntilDue % 60;
+            const timeString = hours > 0
+              ? `${hours}h ${minutes}m`
+              : `${minutes}m`;
+
+            message = `⏰ Reminder: "${plainTextTitle}" is due in ${timeString}!`;
+            toast.info(message, {
+              autoClose: 8000,
+            });
+          } else {
+            message = `⚠️ Task "${plainTextTitle}" is overdue!`;
+            toast.warn(message, {
+              autoClose: 8000,
+            });
+          }
+
+          // Play notification sound
+          notificationSound.playNotification();
+
+          // Show browser notification
+          showBrowserNotification('Todo Reminder', message);
+
+          setNotifiedReminders((prev) => new Set([...prev, notificationKey]));
         }
       });
     };
 
-    const intervalId = setInterval(checkDueDates, 60000); // Check every minute
+    const intervalId = setInterval(checkReminders, 60000); // Check every minute
+    checkReminders(); // Check immediately on mount
 
     return () => clearInterval(intervalId);
-  }, [todos]);
+  }, [todos, reminders, notifiedReminders]);
 
-  // Calculate the total number of pages
-  const totalPages = Math.ceil(todos.length / todosPerPage);
+  // Filter todos based on active tab
+  const activeTodos = todos.filter((todo) => !todo.completed);
+  const completedTodos = todos.filter((todo) => todo.completed);
+  const filteredByTab = activeTab === 'active' ? activeTodos : completedTodos;
+
+  // Further filter by search term
+  const displayedTodos = filteredByTab.filter((todo) => {
+    if (!searchTerm) return true;
+
+    const plainTextTitle = DOMPurify.sanitize(todo.title, {
+      ALLOWED_TAGS: [],
+      ALLOWED_ATTR: [],
+    }).toLowerCase();
+
+    const comment = comments[todo.id] || '';
+    const plainTextComment = DOMPurify.sanitize(comment, {
+      ALLOWED_TAGS: [],
+      ALLOWED_ATTR: [],
+    }).toLowerCase();
+
+    return plainTextTitle.includes(searchTerm.toLowerCase())
+      || plainTextComment.includes(searchTerm.toLowerCase());
+  });
+
+  // Calculate the total number of pages based on filtered todos
+  const totalPages = Math.ceil(displayedTodos.length / todosPerPage);
 
   const moveUp = (index) => {
     const globalIndex = (currentPage - 1) * todosPerPage + index;
     if (globalIndex > 0) {
+      const currentTodo = displayedTodos[globalIndex];
+      const previousTodo = displayedTodos[globalIndex - 1];
+
       setTodos((prevTodos) => {
         const newTodos = [...prevTodos];
-        [newTodos[globalIndex - 1], newTodos[globalIndex]] = [
-          newTodos[globalIndex], newTodos[globalIndex - 1],
+        const currentIdx = newTodos.findIndex((t) => t.id === currentTodo.id);
+        const previousIdx = newTodos.findIndex((t) => t.id === previousTodo.id);
+        [newTodos[previousIdx], newTodos[currentIdx]] = [
+          newTodos[currentIdx], newTodos[previousIdx],
         ];
         return newTodos;
       });
@@ -153,11 +295,16 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
 
   const moveDown = (index) => {
     const globalIndex = (currentPage - 1) * todosPerPage + index;
-    if (globalIndex < todos.length - 1) {
+    if (globalIndex < displayedTodos.length - 1) {
+      const currentTodo = displayedTodos[globalIndex];
+      const nextTodo = displayedTodos[globalIndex + 1];
+
       setTodos((prevTodos) => {
         const newTodos = [...prevTodos];
-        [newTodos[globalIndex + 1], newTodos[globalIndex]] = [
-          newTodos[globalIndex], newTodos[globalIndex + 1],
+        const currentIdx = newTodos.findIndex((t) => t.id === currentTodo.id);
+        const nextIdx = newTodos.findIndex((t) => t.id === nextTodo.id);
+        [newTodos[nextIdx], newTodos[currentIdx]] = [
+          newTodos[currentIdx], newTodos[nextIdx],
         ];
         return newTodos;
       });
@@ -170,13 +317,56 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   // Calculate the current todos to display
   const indexOfLastTodo = currentPage * todosPerPage;
   const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
-  const currentTodos = todos.slice(indexOfFirstTodo, indexOfLastTodo);
+  const currentTodos = displayedTodos.slice(indexOfFirstTodo, indexOfLastTodo);
+
+  // Handle tab change
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    onPageChange(1); // Reset to first page when switching tabs
+  };
+
+  // Handle search
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    onPageChange(1); // Reset to first page when searching
+  };
+
+  // Handle data loaded from cloud storage
+  const handleDataLoaded = (data) => {
+    if (data.todos) setTodos(data.todos);
+    if (data.comments) setComments(data.comments);
+    if (data.reminders) setReminders(data.reminders);
+    if (data.points !== undefined) setPoints(data.points);
+  };
 
   return (
     <>
       <ToastContainer />
-      <PointsDisplay points={points} />
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '1rem',
+      }}
+      >
+        <PointsDisplay points={points} />
+        <NotificationSettings />
+      </div>
+      <StorageSettings
+        todos={todos}
+        comments={comments}
+        reminders={reminders}
+        points={points}
+        onDataLoaded={handleDataLoaded}
+      />
       <InputTodo addTodo={addTodo} />
+      <SearchBar onSearch={handleSearch} />
+      <TodoTabs
+        activeCount={activeTodos.length}
+        completedCount={completedTodos.length}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+      />
       <TodosList
         todosProps={currentTodos}
         handleChange={handleChange}
@@ -191,19 +381,14 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
         currentPage={currentPage}
         totalPages={totalPages}
         onDragEnd={onDragEnd}
+        reminders={reminders}
+        handleSaveReminder={handleSaveReminder}
       />
-      <div className={styles.pagination}>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index + 1}
-            type="button"
-            onClick={() => onPageChange(index + 1)}
-            className={currentPage === index + 1 ? styles.active : ''}
-          >
-            {index + 1}
-          </button>
-        ))}
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
     </>
   );
 };
