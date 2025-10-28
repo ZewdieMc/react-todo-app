@@ -77,6 +77,7 @@ const NotificationSettings = () => {
               type="button"
               onClick={handleSoundToggle}
               className={`${styles.toggle} ${soundEnabled ? styles.active : ''}`}
+              aria-label="Toggle sound notifications"
             >
               <span className={styles.toggleSlider} />
             </button>
@@ -91,6 +92,7 @@ const NotificationSettings = () => {
               type="button"
               onClick={handleBrowserNotificationToggle}
               className={`${styles.toggle} ${browserNotificationsEnabled ? styles.active : ''}`}
+              aria-label="Toggle browser notifications"
             >
               <span className={styles.toggleSlider} />
             </button>

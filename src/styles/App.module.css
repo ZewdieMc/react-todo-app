@@ -32,11 +32,6 @@
   flex-shrink: 0;
 }
 
-.pagination button:hover:not(:disabled) {
-  background-color: #fafafa;
-  border-color: #ddd;
-}
-
 .pagination button.active {
   background-color: #dc4c3e;
   color: white;
@@ -47,6 +42,11 @@
 .pagination button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #fafafa;
+  border-color: #ddd;
 }
 
 .pagination button.ellipsis {
@@ -65,7 +65,7 @@
   .pagination {
     gap: 2px;
   }
-  
+
   .pagination button {
     min-width: 32px;
     height: 32px;

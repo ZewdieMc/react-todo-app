@@ -20,7 +20,7 @@
   gap: 6px;
   padding: 8px 16px;
   border: 2px solid #e0e0e0;
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
@@ -37,7 +37,7 @@
 .storageButton.active {
   border-color: #dc4c3e;
   background-color: #dc4c3e;
-  color: #ffffff;
+  color: #fff;
 }
 
 .storageButton svg {
@@ -51,7 +51,7 @@
   width: 40px;
   height: 40px;
   border: 2px solid #dc4c3e;
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 6px;
   cursor: pointer;
   color: #dc4c3e;
@@ -60,7 +60,7 @@
 
 .syncButton:hover {
   background-color: #dc4c3e;
-  color: #ffffff;
+  color: #fff;
 }
 
 .syncButton:disabled {
@@ -80,6 +80,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
