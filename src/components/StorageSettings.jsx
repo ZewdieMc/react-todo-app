@@ -64,15 +64,11 @@ const StorageSettings = ({
     setStorageMode(savedMode);
 
     if (savedMode === 'cloud') {
-      // If switching to cloud and we have local data, save it first
-      if (todos.length > 0 || Object.keys(comments).length > 0) {
-        saveToCloud(); // Silent upload
-      } else {
-        // Only load if we don't have local data
-        loadFromCloud();
-      }
+      // Load from cloud on mount
+      loadFromCloud();
     }
-  }, [loadFromCloud, saveToCloud, todos.length, comments]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   const handleStorageModeChange = async (mode) => {
     setStorageMode(mode);
@@ -92,7 +88,7 @@ const StorageSettings = ({
     }
   };
 
-  // Auto-sync when storage mode is cloud
+  // Auto-sync when storage mode is cloud - debounced
   useEffect(() => {
     if (storageMode === 'cloud') {
       const timer = setTimeout(() => {
@@ -102,7 +98,8 @@ const StorageSettings = ({
       return () => clearTimeout(timer);
     }
     return undefined;
-  }, [todos, comments, reminders, points, storageMode, saveToCloud]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [todos, comments, reminders, points, storageMode]);
 
   return (
     <div className={styles.storageContainer}>
