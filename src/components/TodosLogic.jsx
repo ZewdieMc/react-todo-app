@@ -2,6 +2,8 @@ import InputTodo from 'components/InputTodo';
 import TodosList from 'components/TodosList';
 import PointsDisplay from 'components/PointsDisplay';
 import NotificationSettings from 'components/NotificationSettings';
+import TodoTabs from 'components/TodoTabs';
+import Pagination from 'components/Pagination';
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
@@ -9,7 +11,6 @@ import { toast, ToastContainer } from 'react-toastify';
 import DOMPurify from 'dompurify';
 import notificationSound from 'utils/notificationSound';
 import 'react-toastify/dist/ReactToastify.css';
-import styles from '../styles/App.module.css';
 
 const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   const getInitialTodos = () => {
@@ -41,6 +42,7 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   const [comments, setComments] = useState(getInitialComments(getInitialTodos()));
   const [points, setPoints] = useState(getInitialPoints());
   const [activeCommentId, setActiveCommentId] = useState(null);
+  const [activeTab, setActiveTab] = useState('active');
 
   const getInitialReminders = () => {
     const temp = localStorage.getItem('reminders');
@@ -240,16 +242,26 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     return () => clearInterval(intervalId);
   }, [todos, reminders, notifiedReminders]);
 
-  // Calculate the total number of pages
-  const totalPages = Math.ceil(todos.length / todosPerPage);
+  // Filter todos based on active tab
+  const activeTodos = todos.filter((todo) => !todo.completed);
+  const completedTodos = todos.filter((todo) => todo.completed);
+  const displayedTodos = activeTab === 'active' ? activeTodos : completedTodos;
+
+  // Calculate the total number of pages based on filtered todos
+  const totalPages = Math.ceil(displayedTodos.length / todosPerPage);
 
   const moveUp = (index) => {
     const globalIndex = (currentPage - 1) * todosPerPage + index;
     if (globalIndex > 0) {
+      const currentTodo = displayedTodos[globalIndex];
+      const previousTodo = displayedTodos[globalIndex - 1];
+
       setTodos((prevTodos) => {
         const newTodos = [...prevTodos];
-        [newTodos[globalIndex - 1], newTodos[globalIndex]] = [
-          newTodos[globalIndex], newTodos[globalIndex - 1],
+        const currentIdx = newTodos.findIndex((t) => t.id === currentTodo.id);
+        const previousIdx = newTodos.findIndex((t) => t.id === previousTodo.id);
+        [newTodos[previousIdx], newTodos[currentIdx]] = [
+          newTodos[currentIdx], newTodos[previousIdx],
         ];
         return newTodos;
       });
@@ -261,11 +273,16 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
 
   const moveDown = (index) => {
     const globalIndex = (currentPage - 1) * todosPerPage + index;
-    if (globalIndex < todos.length - 1) {
+    if (globalIndex < displayedTodos.length - 1) {
+      const currentTodo = displayedTodos[globalIndex];
+      const nextTodo = displayedTodos[globalIndex + 1];
+
       setTodos((prevTodos) => {
         const newTodos = [...prevTodos];
-        [newTodos[globalIndex + 1], newTodos[globalIndex]] = [
-          newTodos[globalIndex], newTodos[globalIndex + 1],
+        const currentIdx = newTodos.findIndex((t) => t.id === currentTodo.id);
+        const nextIdx = newTodos.findIndex((t) => t.id === nextTodo.id);
+        [newTodos[nextIdx], newTodos[currentIdx]] = [
+          newTodos[currentIdx], newTodos[nextIdx],
         ];
         return newTodos;
       });
@@ -278,7 +295,13 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   // Calculate the current todos to display
   const indexOfLastTodo = currentPage * todosPerPage;
   const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
-  const currentTodos = todos.slice(indexOfFirstTodo, indexOfLastTodo);
+  const currentTodos = displayedTodos.slice(indexOfFirstTodo, indexOfLastTodo);
+
+  // Handle tab change
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    onPageChange(1); // Reset to first page when switching tabs
+  };
 
   return (
     <>
@@ -288,6 +311,12 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
         <NotificationSettings />
       </div>
       <InputTodo addTodo={addTodo} />
+      <TodoTabs
+        activeCount={activeTodos.length}
+        completedCount={completedTodos.length}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+      />
       <TodosList
         todosProps={currentTodos}
         handleChange={handleChange}
@@ -305,18 +334,11 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
         reminders={reminders}
         handleSaveReminder={handleSaveReminder}
       />
-      <div className={styles.pagination}>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index + 1}
-            type="button"
-            onClick={() => onPageChange(index + 1)}
-            className={currentPage === index + 1 ? styles.active : ''}
-          >
-            {index + 1}
-          </button>
-        ))}
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
     </>
   );
 };
