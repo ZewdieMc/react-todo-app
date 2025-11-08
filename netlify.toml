@@ -11,7 +11,7 @@
   to = "/index.html"
   status = 200
 
-# Security headers
+# Security headers (COOP removed to allow Google Sign-In)
 [[headers]]
   for = "/*"
   [headers.values]
@@ -19,3 +19,5 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+  # Allow OAuth popups/redirects (prevents window.close/window.closed from being blocked)
+  Cross-Origin-Opener-Policy = "same-origin-allow-popups"

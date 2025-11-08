@@ -1,5 +1,7 @@
 import {
+  signInWithRedirect,
   signInWithPopup,
+  getRedirectResult,
   GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
@@ -12,23 +14,56 @@ class AuthService {
     this.currentUser = null;
   }
 
-  // Sign in with Google
+  // Sign in with Google - uses popup for localhost, redirect for production
   async signInWithGoogle() {
     try {
-      const result = await signInWithPopup(auth, this.provider);
-      this.currentUser = result.user;
-      return {
-        success: true,
-        user: {
-          uid: result.user.uid,
-          email: result.user.email,
-          displayName: result.user.displayName,
-          photoURL: result.user.photoURL,
-        },
-      };
+      const isLocalhost = window.location.hostname === 'localhost'
+        || window.location.hostname === '127.0.0.1';
+
+      if (isLocalhost) {
+        // Use popup for local development (works better)
+        const result = await signInWithPopup(auth, this.provider);
+        this.currentUser = result.user;
+        return {
+          success: true,
+          user: {
+            uid: result.user.uid,
+            email: result.user.email,
+            displayName: result.user.displayName,
+            photoURL: result.user.photoURL,
+          },
+        };
+      }
+      // Use redirect for production (avoids CORS issues)
+      await signInWithRedirect(auth, this.provider);
+      return { success: true };
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error signing in with Google:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Check for redirect result after returning from Google Sign-In
+  async checkRedirectResult() {
+    try {
+      const result = await getRedirectResult(auth);
+      if (result) {
+        this.currentUser = result.user;
+        return {
+          success: true,
+          user: {
+            uid: result.user.uid,
+            email: result.user.email,
+            displayName: result.user.displayName,
+            photoURL: result.user.photoURL,
+          },
+        };
+      }
+      return { success: true, user: null };
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error getting redirect result:', error);
       return { success: false, error: error.message };
     }
   }

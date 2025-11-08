@@ -102,7 +102,13 @@ class CloudStorageService {
       return { success: true };
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('Error saving data:', error);
+      console.error('❌ Error saving data:', error);
+      // eslint-disable-next-line no-console
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        userId: this.userId,
+      });
       return { success: false, error: error.message };
     }
   }
@@ -110,14 +116,26 @@ class CloudStorageService {
   // Load data from cloud
   async loadData() {
     try {
+      // eslint-disable-next-line no-console
+      console.log('Loading from Firestore for user:', this.userId);
       const docSnap = await getDoc(this.userDocRef);
       if (docSnap.exists()) {
+        // eslint-disable-next-line no-console
+        console.log('✅ Data loaded successfully');
         return { success: true, data: docSnap.data() };
       }
+      // eslint-disable-next-line no-console
+      console.log('ℹ️ No data found in Firestore');
       return { success: true, data: null };
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('Error loading data:', error);
+      console.error('❌ Error loading data:', error);
+      // eslint-disable-next-line no-console
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        userId: this.userId,
+      });
       return { success: false, error: error.message };
     }
   }

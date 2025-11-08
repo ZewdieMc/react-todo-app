@@ -1,88 +1,170 @@
-import { useState, useEffect } from 'react';
-import { FaHdd } from 'react-icons/fa';
+import {
+  useState, useEffect, useCallback, useRef,
+} from 'react';
+import PropTypes from 'prop-types';
+import {
+  FaCloud, FaHdd, FaDownload, FaUpload,
+} from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import styles from 'styles/StorageSettings.module.css';
-// import CloudStorageService from '../firebase/cloudStorage';
+import CloudStorageService from '../firebase/cloudStorage';
 
-const StorageSettings = () => {
-  // Props removed - cloud storage disabled
-  // todos, comments, reminders, points, onDataLoaded, userId
+const StorageSettings = ({
+  todos,
+  comments,
+  reminders,
+  points,
+  onDataLoaded,
+  userId,
+}) => {
   const [storageMode, setStorageMode] = useState('local');
-  // DISABLED: Cloud storage functionality removed due to crashes
-  // const [isSyncing, setIsSyncing] = useState(false);
-  // const [cloudService] = useState(new CloudStorageService());
-  // const [lastSyncTime, setLastSyncTime] = useState(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const cloudServiceRef = useRef(null);
+  const syncLockRef = useRef(false);
 
-  // Update cloud service user ID when it changes
-  // useEffect(() => {
-  //   if (userId) {
-  //     cloudService.setUserId(userId);
-  //   }
-  // }, [userId, cloudService]);
-
-  // Ensure local storage mode on mount
+  // Initialize cloud service ONCE on mount
   useEffect(() => {
-    const savedMode = localStorage.getItem('storageMode');
-    // Force local mode, ignore any saved cloud preference
-    if (savedMode !== 'local') {
-      localStorage.setItem('storageMode', 'local');
-      setStorageMode('local');
+    if (!cloudServiceRef.current) {
+      cloudServiceRef.current = new CloudStorageService('anonymous');
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once
 
-  const handleStorageModeChange = (mode) => {
-    // Only allow local mode
-    if (mode !== 'local') {
-      toast.warning('⚠️ Cloud storage is temporarily disabled');
+  // Update user ID when it changes (don't recreate service)
+  useEffect(() => {
+    if (cloudServiceRef.current && userId) {
+      cloudServiceRef.current.setUserId(userId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]); // Only userId in deps
+
+  const loadFromCloud = useCallback(async () => {
+    if (syncLockRef.current || !cloudServiceRef.current) {
       return;
     }
-    setStorageMode('local');
-    localStorage.setItem('storageMode', 'local');
-    toast.info('💾 Using local storage');
-  };
 
-  // Removed: Auto-sync useEffect - cloud storage disabled
+    syncLockRef.current = true;
+    setIsSyncing(true);
+
+    try {
+      const result = await cloudServiceRef.current.loadData();
+
+      if (result.success && result.data) {
+        onDataLoaded(result.data);
+        toast.success('✅ Loaded from cloud', { autoClose: 2000 });
+      } else if (result.success && !result.data) {
+        toast.info('ℹ️ No cloud data found', { autoClose: 2000 });
+      } else {
+        toast.error('❌ Failed to load from cloud');
+      }
+    } catch (error) {
+      toast.error(`❌ Load error: ${error.message}`);
+    } finally {
+      setIsSyncing(false);
+      syncLockRef.current = false;
+    }
+  }, [onDataLoaded]);
+
+  const saveToCloud = useCallback(async () => {
+    if (syncLockRef.current || !cloudServiceRef.current) {
+      return;
+    }
+
+    syncLockRef.current = true;
+    setIsSyncing(true);
+
+    try {
+      const result = await cloudServiceRef.current.saveAllData({
+        todos,
+        comments,
+        reminders,
+        points,
+      });
+
+      if (result.success) {
+        toast.success('✅ Saved to cloud', { autoClose: 2000 });
+      } else {
+        toast.error('❌ Failed to save to cloud');
+      }
+    } catch (error) {
+      toast.error(`❌ Save error: ${error.message}`);
+    } finally {
+      setIsSyncing(false);
+      syncLockRef.current = false;
+    }
+  }, [todos, comments, reminders, points]);
 
   return (
-    <div className={styles.storageContainer}>
-      <div className={styles.storageOptions}>
+    <div className={styles.storageSettings}>
+      <div className={styles.modeButtons}>
         <button
           type="button"
-          className={`${styles.storageButton} ${storageMode === 'local' ? styles.active : ''}`}
-          onClick={() => handleStorageModeChange('local')}
-          title="Store locally in browser"
+          onClick={() => {
+            setStorageMode('local');
+            toast.info('💾 Using local storage', { autoClose: 2000 });
+          }}
+          className={storageMode === 'local' ? styles.active : ''}
+          aria-label="Use local storage"
         >
           <FaHdd />
-          <span>Local</span>
+          {' '}
+          Local
         </button>
-
-        {/* DISABLED: Cloud storage causing crashes */}
-        {/* <button
+        <button
           type="button"
-          className={`${styles.storageButton} ${storageMode === 'cloud' ? styles.active : ''}`}
-          onClick={() => handleStorageModeChange('cloud')}
-          title="Store in cloud (access anywhere)"
+          onClick={() => {
+            setStorageMode('cloud');
+            toast.info('☁️ Cloud mode - Use buttons to sync', { autoClose: 2000 });
+          }}
+          className={storageMode === 'cloud' ? styles.active : ''}
+          aria-label="Use cloud storage"
         >
           <FaCloud />
-          <span>Cloud</span>
+          {' '}
+          Cloud
         </button>
+      </div>
 
-        {storageMode === 'cloud' && (
+      {storageMode === 'cloud' && (
+        <div className={styles.syncButtons}>
           <button
             type="button"
-            className={styles.syncButton}
+            onClick={loadFromCloud}
+            disabled={isSyncing}
+            className={styles.loadButton}
+            aria-label="Load from cloud"
+          >
+            <FaDownload />
+            {' '}
+            {isSyncing ? 'Loading...' : 'Load'}
+          </button>
+          <button
+            type="button"
             onClick={saveToCloud}
             disabled={isSyncing}
-            title="Sync now"
+            className={styles.saveButton}
+            aria-label="Save to cloud"
           >
-            <FaSync className={isSyncing ? styles.spinning : ''} />
+            <FaUpload />
+            {' '}
+            {isSyncing ? 'Saving...' : 'Save'}
           </button>
-        )} */}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
 
-// No PropTypes needed - cloud storage disabled
+StorageSettings.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
+  todos: PropTypes.arrayOf(PropTypes.object).isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  comments: PropTypes.objectOf(PropTypes.array).isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  reminders: PropTypes.objectOf(PropTypes.object).isRequired,
+  points: PropTypes.number.isRequired,
+  onDataLoaded: PropTypes.func.isRequired,
+  userId: PropTypes.string.isRequired,
+};
 
 export default StorageSettings;
