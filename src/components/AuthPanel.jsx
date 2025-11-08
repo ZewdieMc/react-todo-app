@@ -10,60 +10,32 @@ const AuthPanel = ({ onAuthChange }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for redirect result first, then fall back to current user and subscribe
-    let unsub = null;
-    const initAuth = async () => {
-      setLoading(true);
-
-      // 1) Try to read redirect result (when returning from sign-in redirect)
-      const result = await authService.checkRedirectResult();
-      if (result.success && result.user) {
-        setUser(result.user);
-        if (onAuthChange) onAuthChange(result.user);
-        toast.success('✅ Signed in successfully!', { autoClose: 2000 });
-      } else if (!result.success) {
-        // Non-fatal: show error so user knows
-        toast.error(`Sign-in failed: ${result.error}`);
-      }
-
-      // 2) If redirect didn't return a user, check if auth already has a currentUser
-      const existing = authService.getCurrentUser();
-      if (existing) {
-        setUser(existing);
-        if (onAuthChange) onAuthChange(existing);
-      }
-
-      // 3) Subscribe to auth state changes (keeps UI in sync)
-      unsub = authService.onAuthStateChange((u) => {
-        setUser(u);
-        if (onAuthChange) onAuthChange(u);
-      });
-
+    // Subscribe to auth state changes
+    setLoading(true);
+    const unsubscribe = authService.onAuthStateChange((u) => {
+      setUser(u);
+      if (onAuthChange) onAuthChange(u);
       setLoading(false);
-    };
-
-    initAuth();
+    });
 
     return () => {
-      if (unsub) unsub();
+      if (unsubscribe) unsubscribe();
     };
-  }, [onAuthChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - onAuthChange is memoized in parent
 
   const handleSignIn = async () => {
     setLoading(true);
     const result = await authService.signInWithGoogle();
 
-    // For popup mode (localhost), result will have user immediately
-    if (result.user) {
-      setUser(result.user);
-      if (onAuthChange) onAuthChange(result.user);
+    if (result.success && result.user) {
+      // Popup succeeded - user will be set via onAuthStateChange
       toast.success('✅ Signed in successfully!', { autoClose: 2000 });
-      setLoading(false);
     } else if (!result.success) {
       setLoading(false);
       toast.error(`Sign-in failed: ${result.error}`);
     }
-    // For redirect mode (production), page will redirect and come back
+    setLoading(false);
   };
 
   const handleSignOut = async () => {
