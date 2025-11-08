@@ -6,8 +6,8 @@ import TodoTabs from 'components/TodoTabs';
 import Pagination from 'components/Pagination';
 import SearchBar from 'components/SearchBar';
 import StorageSettings from 'components/StorageSettings';
-// import AuthPanel from 'components/AuthPanel'; // Disabled - not needed without cloud
-import { useState, useEffect } from 'react';
+import AuthPanel from 'components/AuthPanel';
+import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
 import { toast, ToastContainer } from 'react-toastify';
@@ -47,12 +47,12 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   const [activeCommentId, setActiveCommentId] = useState(null);
   const [activeTab, setActiveTab] = useState('active');
   const [searchTerm, setSearchTerm] = useState('');
-  // const [currentUser, setCurrentUser] = useState(null); // Disabled - no auth without cloud
+  const [currentUser, setCurrentUser] = useState(null);
 
   // Handle authentication state changes
-  // const handleAuthChange = (user) => {
-  //   setCurrentUser(user);
-  // };
+  const handleAuthChange = useCallback((user) => {
+    setCurrentUser(user);
+  }, []); // No dependencies - setter is stable
 
   const getInitialReminders = () => {
     const temp = localStorage.getItem('reminders');
@@ -338,13 +338,16 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
     onPageChange(1); // Reset to first page when searching
   };
 
-  // Handle data loaded from cloud storage - DISABLED
-  // const handleDataLoaded = (data) => {
-  //   if (data.todos) setTodos(data.todos);
-  //   if (data.comments) setComments(data.comments);
-  //   if (data.reminders) setReminders(data.reminders);
-  //   if (data.points !== undefined) setPoints(data.points);
-  // };
+  // Handle data loaded from cloud storage
+  const handleDataLoaded = useCallback((data) => {
+    if (data.todos) setTodos(data.todos);
+    if (data.comments) setComments(data.comments);
+    if (data.reminders) setReminders(data.reminders);
+    if (data.points !== undefined) setPoints(data.points);
+  }, []); // No dependencies - setters are stable
+
+  // Get user ID for cloud storage (email or anonymous)
+  const userId = currentUser ? currentUser.email : 'anonymous';
 
   return (
     <>
@@ -359,9 +362,15 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
         <PointsDisplay points={points} />
         <NotificationSettings />
       </div>
-      {/* DISABLED: Google Sign-In not needed without cloud storage */}
-      {/* <AuthPanel onAuthChange={handleAuthChange} /> */}
-      <StorageSettings />
+      <AuthPanel onAuthChange={handleAuthChange} />
+      <StorageSettings
+        todos={todos}
+        comments={comments}
+        reminders={reminders}
+        points={points}
+        onDataLoaded={handleDataLoaded}
+        userId={userId}
+      />
       <InputTodo addTodo={addTodo} />
       <SearchBar onSearch={handleSearch} />
       <TodoTabs

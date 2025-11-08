@@ -1,16 +1,10 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read/write access to all documents (for development/testing)
-    // WARNING: These rules allow anyone to read and write to your database
-    // Only use for development, not production!
-    match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2025, 12, 31);
-    }
-    
-    // More specific rule for users collection
+    // Allow authenticated users to access their own data
+    // userId in the path must match the authenticated user's email
     match /users/{userId} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null && request.auth.token.email == userId;
     }
   }
 }

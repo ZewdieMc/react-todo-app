@@ -1,20 +1,19 @@
-.storageContainer {
+.storageSettings {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   padding: 12px;
   background-color: #fafafa;
   border-radius: 8px;
   border: 1px solid #e0e0e0;
 }
 
-.storageOptions {
+.modeButtons {
   display: flex;
-  align-items: center;
   gap: 8px;
 }
 
-.storageButton {
+.modeButtons button {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -27,96 +26,81 @@
   font-weight: 500;
   color: #333;
   transition: all 0.2s ease;
+  flex: 1;
 }
 
-.storageButton:hover {
+.modeButtons button:hover {
   border-color: #dc4c3e;
   background-color: #fef5f4;
 }
 
-.storageButton.active {
+.modeButtons button.active {
   border-color: #dc4c3e;
   background-color: #dc4c3e;
   color: #fff;
 }
 
-.storageButton svg {
-  font-size: 16px;
+.syncButtons {
+  display: flex;
+  gap: 8px;
 }
 
-.syncButton {
+.syncButtons button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 2px solid #dc4c3e;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 2px solid #4caf50;
   background-color: #fff;
   border-radius: 6px;
   cursor: pointer;
-  color: #dc4c3e;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4caf50;
   transition: all 0.2s ease;
+  flex: 1;
 }
 
-.syncButton:hover {
-  background-color: #dc4c3e;
-  color: #fff;
-}
-
-.syncButton:disabled {
-  opacity: 0.6;
+.syncButtons button:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.syncButton svg {
-  font-size: 16px;
+.syncButtons button:hover:not(:disabled) {
+  background-color: #4caf50;
+  color: #fff;
 }
 
-.spinning {
-  animation: spin 1s linear infinite;
+.loadButton {
+  border-color: #2196f3 !important;
+  color: #2196f3 !important;
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+.loadButton:hover:not(:disabled) {
+  background-color: #2196f3 !important;
+  color: #fff !important;
 }
 
-.syncInfo {
-  font-size: 12px;
-  color: #666;
-  text-align: left;
+.saveButton {
+  border-color: #4caf50 !important;
+  color: #4caf50 !important;
+}
+
+.saveButton:hover:not(:disabled) {
+  background-color: #4caf50 !important;
+  color: #fff !important;
 }
 
 /* Mobile responsive */
 @media (max-width: 768px) {
-  .storageContainer {
+  .storageSettings {
     padding: 10px;
   }
 
-  .storageButton {
+  .modeButtons button,
+  .syncButtons button {
+    font-size: 12px;
     padding: 6px 12px;
-    font-size: 13px;
-  }
-
-  .storageButton span {
-    display: none;
-  }
-
-  .storageButton svg {
-    font-size: 18px;
-  }
-
-  .syncButton {
-    width: 36px;
-    height: 36px;
-  }
-
-  .syncInfo {
-    font-size: 11px;
   }
 }
