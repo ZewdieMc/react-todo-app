@@ -1,5 +1,4 @@
 import {
-  signInWithRedirect,
   signInWithPopup,
   getRedirectResult,
   GoogleAuthProvider,
@@ -14,29 +13,21 @@ class AuthService {
     this.currentUser = null;
   }
 
-  // Sign in with Google - uses popup for localhost, redirect for production
+  // Sign in with Google - uses popup for better UX
   async signInWithGoogle() {
     try {
-      const isLocalhost = window.location.hostname === 'localhost'
-        || window.location.hostname === '127.0.0.1';
-
-      if (isLocalhost) {
-        // Use popup for local development (works better)
-        const result = await signInWithPopup(auth, this.provider);
-        this.currentUser = result.user;
-        return {
-          success: true,
-          user: {
-            uid: result.user.uid,
-            email: result.user.email,
-            displayName: result.user.displayName,
-            photoURL: result.user.photoURL,
-          },
-        };
-      }
-      // Use redirect for production (avoids CORS issues)
-      await signInWithRedirect(auth, this.provider);
-      return { success: true };
+      // Use popup for better user experience (works on both localhost and production)
+      const result = await signInWithPopup(auth, this.provider);
+      this.currentUser = result.user;
+      return {
+        success: true,
+        user: {
+          uid: result.user.uid,
+          email: result.user.email,
+          displayName: result.user.displayName,
+          photoURL: result.user.photoURL,
+        },
+      };
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error signing in with Google:', error);
