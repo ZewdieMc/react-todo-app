@@ -13,6 +13,11 @@
   gap: 8px;
 }
 
+.syncButtons {
+  display: flex;
+  gap: 8px;
+}
+
 .modeButtons button {
   display: flex;
   align-items: center;
@@ -27,22 +32,6 @@
   color: #333;
   transition: all 0.2s ease;
   flex: 1;
-}
-
-.modeButtons button:hover {
-  border-color: #dc4c3e;
-  background-color: #fef5f4;
-}
-
-.modeButtons button.active {
-  border-color: #dc4c3e;
-  background-color: #dc4c3e;
-  color: #fff;
-}
-
-.syncButtons {
-  display: flex;
-  gap: 8px;
 }
 
 .syncButtons button {
@@ -60,6 +49,17 @@
   color: #4caf50;
   transition: all 0.2s ease;
   flex: 1;
+}
+
+.modeButtons button:hover {
+  border-color: #dc4c3e;
+  background-color: #fef5f4;
+}
+
+.modeButtons button.active {
+  border-color: #dc4c3e;
+  background-color: #dc4c3e;
+  color: #fff;
 }
 
 .syncButtons button:disabled {
