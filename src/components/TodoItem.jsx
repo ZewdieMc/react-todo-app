@@ -7,7 +7,9 @@ import htmlToDraft from 'html-to-draftjs';
 import DOMPurify from 'dompurify';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { AiFillEdit, AiFillSave } from 'react-icons/ai';
-import { FaTrash, FaCommentDots } from 'react-icons/fa';
+import { FaTrash, FaCommentDots, FaCalendarAlt } from 'react-icons/fa';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import ConfirmModal from 'components/ConfirmModal';
 import styles from 'styles/TodoItem.module.css';
 import ReminderSettings from './ReminderSettings';
@@ -19,6 +21,8 @@ const TodoItem = ({
 }) => {
   const [editing, setEditing] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [editingDueDate, setEditingDueDate] = useState(false);
+  const [tempDueDate, setTempDueDate] = useState(null);
   const [editorState, setEditorState] = useState(() => {
     let contentState;
     try {
@@ -64,6 +68,33 @@ const TodoItem = ({
 
   const handleCommentSave = () => {
     setActiveCommentId(null);
+  };
+
+  const handleEditDueDate = () => {
+    // Prepare current due date as a Date object for react-datepicker
+    if (itemProp.dueDate) {
+      setTempDueDate(new Date(itemProp.dueDate));
+    } else {
+      setTempDueDate(null);
+    }
+    setEditingDueDate(true);
+  };
+
+  const handleSaveDueDate = () => {
+    if (tempDueDate) {
+      const updatedTodo = { ...itemProp, dueDate: new Date(tempDueDate).toISOString() };
+      setUpdate(updatedTodo.title, itemProp.id, updatedTodo.dueDate);
+    } else {
+      // clear due date
+      setUpdate(itemProp.title, itemProp.id, null);
+    }
+    setEditingDueDate(false);
+    setTempDueDate(null);
+  };
+
+  const handleCancelDueDate = () => {
+    setEditingDueDate(false);
+    setTempDueDate(null);
   };
 
   const handleDelete = () => {
@@ -150,7 +181,7 @@ const TodoItem = ({
         <span style={itemProp.completed ? completedStyle : null}>
           {/* eslint-disable-next-line */}
           <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(itemProp.title) }} />
-          {itemProp.dueDate && (
+          {!editingDueDate && itemProp.dueDate && (
             <span className={styles.dueDate}>
               {' '}
               Due:
@@ -161,6 +192,62 @@ const TodoItem = ({
                 hour: 'numeric',
                 minute: '2-digit',
               })}
+              <button
+                type="button"
+                onClick={handleEditDueDate}
+                className={styles.editDueDateBtn}
+                title="Edit due date"
+                aria-label="Edit due date"
+              >
+                <FaCalendarAlt />
+              </button>
+            </span>
+          )}
+          {!editingDueDate && !itemProp.dueDate && (
+            <button
+              type="button"
+              onClick={handleEditDueDate}
+              className={styles.addDueDateBtn}
+              title="Add due date"
+              aria-label="Add due date"
+            >
+              <FaCalendarAlt />
+              {' '}
+              Add due date
+            </button>
+          )}
+          {editingDueDate && (
+            <span className={styles.dueDateEditor}>
+              <DatePicker
+                selected={tempDueDate}
+                onChange={(date) => setTempDueDate(date)}
+                showTimeSelect
+                timeFormat="HH:mm"
+                timeIntervals={15}
+                dateFormat="MMM d, yyyy h:mm aa"
+                placeholderText="Set due date & time"
+                className={styles.dueDateInput}
+                minDate={new Date()}
+                isClearable
+              />
+              <button
+                type="button"
+                onClick={handleSaveDueDate}
+                className={styles.saveDueDateBtn}
+                title="Save due date"
+                aria-label="Save due date"
+              >
+                <AiFillSave />
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelDueDate}
+                className={styles.cancelDueDateBtn}
+                title="Cancel"
+                aria-label="Cancel editing due date"
+              >
+                ✕
+              </button>
             </span>
           )}
         </span>

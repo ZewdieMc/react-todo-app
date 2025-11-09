@@ -186,11 +186,15 @@ const TodosLogic = ({
     }));
   };
 
-  const setUpdate = (updatedTitle, id) => {
+  const setUpdate = (updatedTitle, id, updatedDueDate) => {
     setTodos(
       todos.map((todo) => {
         if (todo.id === id) {
-          return ({ ...todo, title: updatedTitle });
+          const updates = { ...todo, title: updatedTitle };
+          if (updatedDueDate !== undefined) {
+            updates.dueDate = updatedDueDate;
+          }
+          return updates;
         }
         return todo;
       }),
