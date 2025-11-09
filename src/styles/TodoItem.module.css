@@ -76,6 +76,97 @@
   background: #f3f3f3;
   padding: 2px 8px;
   border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.editDueDateBtn {
+  background: transparent !important;
+  border: none !important;
+  color: #dc4c3e !important;
+  font-size: 14px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer;
+  display: inline-flex !important;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.editDueDateBtn:hover {
+  transform: scale(1.2);
+}
+
+.addDueDateBtn {
+  font-size: 12px;
+  color: #888;
+  background: #f3f3f3;
+  border: 1px dashed #ccc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-left: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.addDueDateBtn:hover {
+  background: #e8e8e8;
+  border-color: #dc4c3e;
+  color: #dc4c3e;
+}
+
+.dueDateEditor {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+}
+
+.dueDateInput {
+  padding: 4px 8px;
+  border: 1px solid #dc4c3e;
+  border-radius: 4px;
+  font-size: 12px;
+  outline: none;
+}
+
+.saveDueDateBtn {
+  background: #dc4c3e !important;
+  color: white !important;
+  border: none !important;
+  padding: 4px 8px !important;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px !important;
+  display: inline-flex !important;
+  align-items: center;
+  transition: background 0.2s ease;
+}
+
+.saveDueDateBtn:hover {
+  background: #c43d30 !important;
+}
+
+.cancelDueDateBtn {
+  background: #f3f3f3 !important;
+  color: #666 !important;
+  border: none !important;
+  padding: 4px 8px !important;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px !important;
+  display: inline-flex !important;
+  align-items: center;
+  transition: background 0.2s ease;
+}
+
+.cancelDueDateBtn:hover {
+  background: #e8e8e8 !important;
+  color: #333 !important;
 }
 
 .content span span.completion {
