@@ -1,12 +1,9 @@
 import InputTodo from 'components/InputTodo';
 import TodosList from 'components/TodosList';
-import PointsDisplay from 'components/PointsDisplay';
-import NotificationSettings from 'components/NotificationSettings';
 import TodoTabs from 'components/TodoTabs';
 import Pagination from 'components/Pagination';
 import SearchBar from 'components/SearchBar';
 import StorageSettings from 'components/StorageSettings';
-import AuthPanel from 'components/AuthPanel';
 import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
@@ -15,7 +12,9 @@ import DOMPurify from 'dompurify';
 import notificationSound from 'utils/notificationSound';
 import 'react-toastify/dist/ReactToastify.css';
 
-const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
+const TodosLogic = ({
+  currentPage, todosPerPage, onPageChange, currentUser,
+}) => {
   const getInitialTodos = () => {
     const temp = localStorage.getItem('todos');
     const savedTodos = JSON.parse(temp);
@@ -47,12 +46,6 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   const [activeCommentId, setActiveCommentId] = useState(null);
   const [activeTab, setActiveTab] = useState('active');
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentUser, setCurrentUser] = useState(null);
-
-  // Handle authentication state changes
-  const handleAuthChange = useCallback((user) => {
-    setCurrentUser(user);
-  }, []); // No dependencies - setter is stable
 
   const getInitialReminders = () => {
     const temp = localStorage.getItem('reminders');
@@ -352,27 +345,28 @@ const TodosLogic = ({ currentPage, todosPerPage, onPageChange }) => {
   return (
     <>
       <ToastContainer />
+      {/* Compact header row: Storage and Search */}
       <div style={{
         display: 'flex',
-        justifyContent: 'space-between',
+        gap: '12px',
         alignItems: 'center',
         marginBottom: '1rem',
+        flexWrap: 'wrap',
       }}
       >
-        <PointsDisplay points={points} />
-        <NotificationSettings />
+        <StorageSettings
+          todos={todos}
+          comments={comments}
+          reminders={reminders}
+          points={points}
+          onDataLoaded={handleDataLoaded}
+          userId={userId}
+        />
+        <div style={{ flex: '1 1 300px', minWidth: '200px' }}>
+          <SearchBar onSearch={handleSearch} />
+        </div>
       </div>
-      <AuthPanel onAuthChange={handleAuthChange} />
-      <StorageSettings
-        todos={todos}
-        comments={comments}
-        reminders={reminders}
-        points={points}
-        onDataLoaded={handleDataLoaded}
-        userId={userId}
-      />
       <InputTodo addTodo={addTodo} />
-      <SearchBar onSearch={handleSearch} />
       <TodoTabs
         activeCount={activeTodos.length}
         completedCount={completedTodos.length}
@@ -409,6 +403,15 @@ TodosLogic.propTypes = {
   currentPage: PropTypes.number.isRequired,
   todosPerPage: PropTypes.number.isRequired,
   onPageChange: PropTypes.func.isRequired,
+  currentUser: PropTypes.shape({
+    email: PropTypes.string,
+    displayName: PropTypes.string,
+    photoURL: PropTypes.string,
+  }),
+};
+
+TodosLogic.defaultProps = {
+  currentUser: null,
 };
 
 export default TodosLogic;

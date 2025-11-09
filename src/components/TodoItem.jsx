@@ -8,15 +8,14 @@ import DOMPurify from 'dompurify';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { AiFillEdit, AiFillSave } from 'react-icons/ai';
 import { FaTrash, FaCommentDots } from 'react-icons/fa';
-import { GoChevronUp, GoChevronDown } from 'react-icons/go';
 import ConfirmModal from 'components/ConfirmModal';
 import styles from 'styles/TodoItem.module.css';
 import ReminderSettings from './ReminderSettings';
 
 const TodoItem = ({
-  itemProp, index, onChange, deleteTodo, setUpdate, moveUp,
-  moveDown, size, comments, handleCommentChange, activeCommentId, setActiveCommentId,
-  currentPage, totalPages, reminder, onSaveReminder,
+  itemProp, onChange, deleteTodo, setUpdate,
+  comments, handleCommentChange, activeCommentId, setActiveCommentId,
+  reminder, onSaveReminder,
 }) => {
   const [editing, setEditing] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -106,8 +105,6 @@ const TodoItem = ({
 
   const commentTooltip = comments[itemProp.id] ? comments[itemProp.id] : 'Add comment on this item';
 
-  const globalIndex = (currentPage - 1) * size + index;
-
   return (
     <li className={styles.item}>
       <div className={styles.content} style={viewMode}>
@@ -150,28 +147,6 @@ const TodoItem = ({
             </button>
           </div>
         )}
-        <div>
-          {globalIndex > 0 && (
-            <button
-              type="button"
-              onClick={() => moveUp(index)}
-              aria-label="Move up"
-              title="Move task up"
-            >
-              <GoChevronUp style={{ color: '#666', fontSize: '20px' }} />
-            </button>
-          )}
-          {globalIndex < size * totalPages - 1 && (
-            <button
-              type="button"
-              onClick={() => moveDown(index)}
-              aria-label="Move down"
-              title="Move task down"
-            >
-              <GoChevronDown style={{ color: '#666', fontSize: '20px' }} />
-            </button>
-          )}
-        </div>
         <span style={itemProp.completed ? completedStyle : null}>
           {/* eslint-disable-next-line */}
           <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(itemProp.title) }} />
@@ -281,16 +256,10 @@ TodoItem.propTypes = {
   onChange: PropTypes.func.isRequired,
   deleteTodo: PropTypes.func.isRequired,
   setUpdate: PropTypes.func.isRequired,
-  moveUp: PropTypes.func.isRequired,
-  moveDown: PropTypes.func.isRequired,
-  index: PropTypes.number.isRequired,
-  size: PropTypes.number.isRequired,
   comments: PropTypes.objectOf(PropTypes.string).isRequired,
   handleCommentChange: PropTypes.func.isRequired,
   activeCommentId: PropTypes.string,
   setActiveCommentId: PropTypes.func.isRequired,
-  currentPage: PropTypes.number.isRequired,
-  totalPages: PropTypes.number.isRequired,
   reminder: PropTypes.string,
   onSaveReminder: PropTypes.func.isRequired,
 };
