@@ -56,10 +56,14 @@ const TodosLogic = ({
   const [reminders, setReminders] = useState(getInitialReminders());
   const [notifiedReminders, setNotifiedReminders] = useState(new Set());
 
-  // Request notification permission on mount
+  // Request notification permission on mount (with error handling for mobile)
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
+      Notification.requestPermission().catch((error) => {
+        // Silently fail on mobile browsers that don't support this
+        // eslint-disable-next-line no-console
+        console.log('Notification permission request not supported:', error);
+      });
     }
   }, []);
 
@@ -84,22 +88,52 @@ const TodosLogic = ({
     return timeMap[reminderType] || 0;
   };
 
-  const showBrowserNotification = (title, body) => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      const notification = new Notification(title, {
-        body,
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
-        tag: 'todo-reminder',
-        requireInteraction: true,
-      });
-
-      notification.onclick = () => {
-        window.focus();
-        notification.close();
-      };
+  const showBrowserNotification = useCallback((title, body) => {
+    // Check if notifications are supported
+    if (!('Notification' in window)) {
+      // Fallback: show toast notification instead
+      toast.info(`🔔 ${title}: ${body}`, { autoClose: 5000 });
+      return;
     }
-  };
+
+    try {
+      if (Notification.permission === 'granted') {
+        const notification = new Notification(title, {
+          body,
+          icon: '/favicon.ico',
+          badge: '/favicon.ico',
+          tag: 'todo-reminder',
+          requireInteraction: true,
+        });
+
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+      } else if (Notification.permission !== 'denied') {
+        // Request permission if not denied
+        Notification.requestPermission().then((permission) => {
+          if (permission === 'granted') {
+            showBrowserNotification(title, body);
+          } else {
+            // Fallback to toast if permission denied
+            toast.info(`🔔 ${title}: ${body}`, { autoClose: 5000 });
+          }
+        }).catch(() => {
+          // If request fails (mobile browsers), use toast
+          toast.info(`🔔 ${title}: ${body}`, { autoClose: 5000 });
+        });
+      } else {
+        // Permission denied - use toast
+        toast.info(`🔔 ${title}: ${body}`, { autoClose: 5000 });
+      }
+    } catch (error) {
+      // Any error - fallback to toast
+      // eslint-disable-next-line no-console
+      console.error('Notification error:', error);
+      toast.info(`🔔 ${title}: ${body}`, { autoClose: 5000 });
+    }
+  }, []);
 
   const handleChange = (id) => {
     setTodos((prevState) => prevState.map((todo) => {
@@ -243,7 +277,7 @@ const TodosLogic = ({
     checkReminders(); // Check immediately on mount
 
     return () => clearInterval(intervalId);
-  }, [todos, reminders, notifiedReminders]);
+  }, [todos, reminders, notifiedReminders, showBrowserNotification]);
 
   // Filter todos based on active tab
   const activeTodos = todos.filter((todo) => !todo.completed);
