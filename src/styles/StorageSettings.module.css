@@ -72,24 +72,28 @@
   color: #fff;
 }
 
-.loadButton {
-  border-color: #2196f3 !important;
-  color: #2196f3 !important;
-}
-
-.loadButton:hover:not(:disabled) {
-  background-color: #2196f3 !important;
-  color: #fff !important;
-}
-
-.saveButton {
+.syncButton {
   border-color: #4caf50 !important;
   color: #4caf50 !important;
 }
 
-.saveButton:hover:not(:disabled) {
+.syncButton:hover:not(:disabled) {
   background-color: #4caf50 !important;
   color: #fff !important;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Mobile responsive */

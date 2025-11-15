@@ -3,7 +3,7 @@ import {
 } from 'react';
 import PropTypes from 'prop-types';
 import {
-  FaCloud, FaHdd, FaDownload, FaUpload,
+  FaCloud, FaHdd, FaSync,
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import styles from 'styles/StorageSettings.module.css';
@@ -38,7 +38,7 @@ const StorageSettings = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]); // Only userId in deps
 
-  const loadFromCloud = useCallback(async () => {
+  const syncData = useCallback(async () => {
     if (syncLockRef.current || !cloudServiceRef.current) {
       return;
     }
@@ -47,52 +47,37 @@ const StorageSettings = ({
     setIsSyncing(true);
 
     try {
-      const result = await cloudServiceRef.current.loadData();
-
-      if (result.success && result.data) {
-        onDataLoaded(result.data);
-        toast.success('✅ Loaded from cloud', { autoClose: 2000 });
-      } else if (result.success && !result.data) {
-        toast.info('ℹ️ No cloud data found', { autoClose: 2000 });
-      } else {
-        toast.error('❌ Failed to load from cloud');
-      }
-    } catch (error) {
-      toast.error(`❌ Load error: ${error.message}`);
-    } finally {
-      setIsSyncing(false);
-      syncLockRef.current = false;
-    }
-  }, [onDataLoaded]);
-
-  const saveToCloud = useCallback(async () => {
-    if (syncLockRef.current || !cloudServiceRef.current) {
-      return;
-    }
-
-    syncLockRef.current = true;
-    setIsSyncing(true);
-
-    try {
-      const result = await cloudServiceRef.current.saveAllData({
+      // First, save local data to cloud
+      const saveResult = await cloudServiceRef.current.saveAllData({
         todos,
         comments,
         reminders,
         points,
       });
 
-      if (result.success) {
+      if (!saveResult.success) {
+        toast.error('❌ Failed to save to cloud');
+        return;
+      }
+
+      // Then, load from cloud to get the latest data
+      const loadResult = await cloudServiceRef.current.loadData();
+
+      if (loadResult.success && loadResult.data) {
+        onDataLoaded(loadResult.data);
+        toast.success('✅ Synced with cloud', { autoClose: 2000 });
+      } else if (loadResult.success && !loadResult.data) {
         toast.success('✅ Saved to cloud', { autoClose: 2000 });
       } else {
-        toast.error('❌ Failed to save to cloud');
+        toast.error('❌ Failed to load from cloud');
       }
     } catch (error) {
-      toast.error(`❌ Save error: ${error.message}`);
+      toast.error(`❌ Sync error: ${error.message}`);
     } finally {
       setIsSyncing(false);
       syncLockRef.current = false;
     }
-  }, [todos, comments, reminders, points]);
+  }, [todos, comments, reminders, points, onDataLoaded]);
 
   return (
     <div className={styles.storageSettings}>
@@ -129,25 +114,14 @@ const StorageSettings = ({
         <div className={styles.syncButtons}>
           <button
             type="button"
-            onClick={loadFromCloud}
+            onClick={syncData}
             disabled={isSyncing}
-            className={styles.loadButton}
-            aria-label="Load from cloud"
+            className={styles.syncButton}
+            aria-label="Sync with cloud"
           >
-            <FaDownload />
+            <FaSync className={isSyncing ? styles.spinning : ''} />
             {' '}
-            {isSyncing ? 'Loading...' : 'Load'}
-          </button>
-          <button
-            type="button"
-            onClick={saveToCloud}
-            disabled={isSyncing}
-            className={styles.saveButton}
-            aria-label="Save to cloud"
-          >
-            <FaUpload />
-            {' '}
-            {isSyncing ? 'Saving...' : 'Save'}
+            {isSyncing ? 'Syncing...' : 'Sync'}
           </button>
         </div>
       )}
