@@ -1,0 +1,61 @@
+.importContainer {
+  display: inline-block;
+}
+
+.importButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.importButton:hover:not(:disabled) {
+  background-color: #f5f5f5;
+  border-color: #dc4c3e;
+  color: #dc4c3e;
+}
+
+.importButton:hover:not(:disabled) .icon {
+  color: #dc4c3e;
+}
+
+.importButton:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.importButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.icon {
+  font-size: 16px;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.buttonText {
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .buttonText {
+    display: none;
+  }
+
+  .importButton {
+    padding: 10px;
+  }
+
+  .icon {
+    font-size: 18px;
+  }
+}
