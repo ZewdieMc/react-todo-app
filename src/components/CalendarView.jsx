@@ -4,14 +4,13 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import DOMPurify from 'dompurify';
 import EventDetailModal from 'components/EventDetailModal';
-import CalendarImport from 'components/CalendarImport';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import styles from 'styles/CalendarView.module.css';
 
 const localizer = momentLocalizer(moment);
 
 const CalendarView = ({
-  todos, comments, onImportEvents,
+  todos, comments,
 }) => {
   const [selectedEvent, setSelectedEvent] = useState(null);
 
@@ -77,9 +76,6 @@ const CalendarView = ({
 
   return (
     <div className={styles.calendarContainer}>
-      <div className={styles.calendarHeader}>
-        <CalendarImport onImport={onImportEvents} />
-      </div>
       <Calendar
         localizer={localizer}
         events={events}
@@ -128,7 +124,6 @@ CalendarView.propTypes = {
     }),
   ).isRequired,
   comments: PropTypes.objectOf(PropTypes.string).isRequired,
-  onImportEvents: PropTypes.func.isRequired,
 };
 
 CalendarView.defaultProps = {};
