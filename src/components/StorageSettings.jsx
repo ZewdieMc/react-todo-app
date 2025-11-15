@@ -47,30 +47,48 @@ const StorageSettings = ({
     setIsSyncing(true);
 
     try {
-      // First, save local data to cloud
-      const saveResult = await cloudServiceRef.current.saveAllData({
+      // Step 1: Load data from cloud first
+      const loadResult = await cloudServiceRef.current.loadData();
+
+      const mergedData = {
         todos,
         comments,
         reminders,
         points,
-      });
+      };
+
+      // Step 2: Merge cloud data with local data if cloud has data
+      if (loadResult.success && loadResult.data) {
+        const cloudData = loadResult.data;
+
+        // Merge todos: combine both, remove duplicates by id, keep local version if duplicate
+        const localTodoIds = new Set(todos.map((t) => t.id));
+        const cloudTodos = cloudData.todos || [];
+        const newCloudTodos = cloudTodos.filter((t) => !localTodoIds.has(t.id));
+        mergedData.todos = [...todos, ...newCloudTodos];
+
+        // Merge comments: combine both objects
+        mergedData.comments = { ...(cloudData.comments || {}), ...comments };
+
+        // Merge reminders: combine both objects
+        mergedData.reminders = { ...(cloudData.reminders || {}), ...reminders };
+
+        // Keep the higher points value
+        mergedData.points = Math.max(points, cloudData.points || 0);
+      }
+
+      // Step 3: Save merged data back to cloud
+      const saveResult = await cloudServiceRef.current.saveAllData(mergedData);
 
       if (!saveResult.success) {
-        toast.error('❌ Failed to save to cloud');
+        toast.error('❌ Failed to sync to cloud');
         return;
       }
 
-      // Then, load from cloud to get the latest data
-      const loadResult = await cloudServiceRef.current.loadData();
+      // Step 4: Update local state with merged data
+      onDataLoaded(mergedData);
 
-      if (loadResult.success && loadResult.data) {
-        onDataLoaded(loadResult.data);
-        toast.success('✅ Synced with cloud', { autoClose: 2000 });
-      } else if (loadResult.success && !loadResult.data) {
-        toast.success('✅ Saved to cloud', { autoClose: 2000 });
-      } else {
-        toast.error('❌ Failed to load from cloud');
-      }
+      toast.success('✅ Synced with cloud', { autoClose: 2000 });
     } catch (error) {
       toast.error(`❌ Sync error: ${error.message}`);
     } finally {
