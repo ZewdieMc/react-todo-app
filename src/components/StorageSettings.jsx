@@ -38,6 +38,34 @@ const StorageSettings = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]); // Only userId in deps
 
+  // Auto-load from cloud when switching to cloud mode or on mount
+  useEffect(() => {
+    const autoLoadFromCloud = async () => {
+      if (storageMode === 'cloud' && cloudServiceRef.current && !syncLockRef.current) {
+        syncLockRef.current = true;
+        setIsSyncing(true);
+
+        try {
+          const result = await cloudServiceRef.current.loadData();
+
+          if (result.success && result.data) {
+            onDataLoaded(result.data);
+            toast.success('✅ Loaded from cloud', { autoClose: 2000 });
+          } else if (result.success && !result.data) {
+            toast.info('ℹ️ No cloud data found', { autoClose: 2000 });
+          }
+        } catch (error) {
+          toast.error(`❌ Auto-load error: ${error.message}`);
+        } finally {
+          setIsSyncing(false);
+          syncLockRef.current = false;
+        }
+      }
+    };
+
+    autoLoadFromCloud();
+  }, [storageMode, onDataLoaded]);
+
   const loadFromCloud = useCallback(async () => {
     if (syncLockRef.current || !cloudServiceRef.current) {
       return;

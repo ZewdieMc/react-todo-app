@@ -3,59 +3,73 @@ import TodosList from 'components/TodosList';
 import TodoTabs from 'components/TodoTabs';
 import Pagination from 'components/Pagination';
 import SearchBar from 'components/SearchBar';
-import StorageSettings from 'components/StorageSettings';
 import CalendarView from 'components/CalendarView';
-import { useState, useEffect, useCallback } from 'react';
+import {
+  useState, useEffect, useCallback, useRef,
+} from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
 import { toast, ToastContainer } from 'react-toastify';
 import DOMPurify from 'dompurify';
 import notificationSound from 'utils/notificationSound';
+import CloudStorageService from '../firebase/cloudStorage';
 import 'react-toastify/dist/ReactToastify.css';
 
 const TodosLogic = ({
   currentPage, todosPerPage, onPageChange, currentUser,
 }) => {
-  const getInitialTodos = () => {
-    const temp = localStorage.getItem('todos');
-    const savedTodos = JSON.parse(temp);
-    return savedTodos || [];
-  };
-
-  const getInitialComments = (todos) => {
-    const temp = localStorage.getItem('comments');
-    const savedComments = JSON.parse(temp);
-    if (savedComments) {
-      return savedComments;
-    }
-    const initialComments = {};
-    todos.forEach((todo) => {
-      initialComments[todo.id] = '';
-    });
-    return initialComments;
-  };
-
-  const getInitialPoints = () => {
-    const temp = localStorage.getItem('points');
-    const savedPoints = JSON.parse(temp);
-    return savedPoints || 0;
-  };
-
-  const [todos, setTodos] = useState(getInitialTodos());
-  const [comments, setComments] = useState(getInitialComments(getInitialTodos()));
-  const [points, setPoints] = useState(getInitialPoints());
+  const [todos, setTodos] = useState([]);
+  const [comments, setComments] = useState({});
+  const [points, setPoints] = useState(0);
+  const [reminders, setReminders] = useState({});
   const [activeCommentId, setActiveCommentId] = useState(null);
   const [activeTab, setActiveTab] = useState('active');
   const [searchTerm, setSearchTerm] = useState('');
-
-  const getInitialReminders = () => {
-    const temp = localStorage.getItem('reminders');
-    const savedReminders = JSON.parse(temp);
-    return savedReminders || {};
-  };
-
-  const [reminders, setReminders] = useState(getInitialReminders());
   const [notifiedReminders, setNotifiedReminders] = useState(new Set());
+  const [isLoadingFromCloud, setIsLoadingFromCloud] = useState(true);
+
+  const cloudServiceRef = useRef(null);
+  const savingToCloudRef = useRef(false);
+
+  // Initialize cloud service
+  useEffect(() => {
+    if (!cloudServiceRef.current) {
+      cloudServiceRef.current = new CloudStorageService('anonymous');
+    }
+  }, []);
+
+  // Update user ID when it changes
+  useEffect(() => {
+    if (cloudServiceRef.current && currentUser) {
+      const userId = currentUser.email || 'anonymous';
+      cloudServiceRef.current.setUserId(userId);
+    }
+  }, [currentUser]);
+
+  // Load initial data from cloud
+  useEffect(() => {
+    const loadFromCloud = async () => {
+      if (!cloudServiceRef.current) return;
+
+      try {
+        const result = await cloudServiceRef.current.loadData();
+
+        if (result.success && result.data) {
+          setTodos(result.data.todos || []);
+          setComments(result.data.comments || {});
+          setReminders(result.data.reminders || {});
+          setPoints(result.data.points || 0);
+          toast.success('✅ Data loaded', { autoClose: 2000 });
+        }
+      } catch (error) {
+        toast.error(`❌ Failed to load: ${error.message}`);
+      } finally {
+        setIsLoadingFromCloud(false);
+      }
+    };
+
+    loadFromCloud();
+  }, [currentUser]);
 
   // Request notification permission on mount (with error handling for mobile)
   useEffect(() => {
@@ -213,15 +227,30 @@ const TodosLogic = ({
   };
 
   useEffect(() => {
-    const temp = JSON.stringify(todos);
-    localStorage.setItem('todos', temp);
-    const tempComments = JSON.stringify(comments);
-    localStorage.setItem('comments', tempComments);
-    const tempPoints = JSON.stringify(points);
-    localStorage.setItem('points', tempPoints);
-    const tempReminders = JSON.stringify(reminders);
-    localStorage.setItem('reminders', tempReminders);
-  }, [todos, comments, points, reminders]);
+    const saveToCloud = async () => {
+      if (isLoadingFromCloud || savingToCloudRef.current || !cloudServiceRef.current) return;
+
+      savingToCloudRef.current = true;
+
+      try {
+        await cloudServiceRef.current.saveAllData({
+          todos,
+          comments,
+          reminders,
+          points,
+        });
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Auto-save error:', error);
+      } finally {
+        savingToCloudRef.current = false;
+      }
+    };
+
+    // Debounce auto-save by 1 second
+    const timeoutId = setTimeout(saveToCloud, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [todos, comments, points, reminders, isLoadingFromCloud]);
 
   useEffect(() => {
     const checkReminders = () => {
@@ -379,40 +408,15 @@ const TodosLogic = ({
     onPageChange(1); // Reset to first page when searching
   };
 
-  // Handle data loaded from cloud storage
-  const handleDataLoaded = useCallback((data) => {
-    if (data.todos) setTodos(data.todos);
-    if (data.comments) setComments(data.comments);
-    if (data.reminders) setReminders(data.reminders);
-    if (data.points !== undefined) setPoints(data.points);
-  }, []); // No dependencies - setters are stable
-
-  // Get user ID for cloud storage (email or anonymous)
-  const userId = currentUser ? currentUser.email : 'anonymous';
-
   return (
     <>
       <ToastContainer />
-      {/* Compact header row: Storage and Search */}
+      {/* Search Bar */}
       <div style={{
-        display: 'flex',
-        gap: '12px',
-        alignItems: 'center',
         marginBottom: '1rem',
-        flexWrap: 'wrap',
       }}
       >
-        <StorageSettings
-          todos={todos}
-          comments={comments}
-          reminders={reminders}
-          points={points}
-          onDataLoaded={handleDataLoaded}
-          userId={userId}
-        />
-        <div style={{ flex: '1 1 300px', minWidth: '200px' }}>
-          <SearchBar onSearch={handleSearch} />
-        </div>
+        <SearchBar onSearch={handleSearch} />
       </div>
       <InputTodo addTodo={addTodo} />
       <TodoTabs
