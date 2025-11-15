@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import CloudStorageService from '../firebase/cloudStorage';
 import { toast } from 'react-toastify';
+import CloudStorageService from '../firebase/cloudStorage';
 
 const useCloudStorage = (userId) => {
   const [todos, setTodos] = useState([]);
@@ -8,7 +8,7 @@ const useCloudStorage = (userId) => {
   const [reminders, setReminders] = useState({});
   const [points, setPoints] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const cloudServiceRef = useRef(null);
   const savingRef = useRef(false);
 
