@@ -3,7 +3,7 @@ import {
 } from 'react';
 import PropTypes from 'prop-types';
 import {
-  FaCloud, FaHdd, FaSync,
+  FaCloud, FaHdd, FaDownload, FaUpload,
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import styles from 'styles/StorageSettings.module.css';
@@ -38,7 +38,7 @@ const StorageSettings = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]); // Only userId in deps
 
-  const syncData = useCallback(async () => {
+  const loadFromCloud = useCallback(async () => {
     if (syncLockRef.current || !cloudServiceRef.current) {
       return;
     }
@@ -47,55 +47,52 @@ const StorageSettings = ({
     setIsSyncing(true);
 
     try {
-      // Step 1: Load data from cloud first
-      const loadResult = await cloudServiceRef.current.loadData();
+      const result = await cloudServiceRef.current.loadData();
 
-      const mergedData = {
-        todos,
-        comments,
-        reminders,
-        points,
-      };
-
-      // Step 2: Merge cloud data with local data if cloud has data
-      if (loadResult.success && loadResult.data) {
-        const cloudData = loadResult.data;
-
-        // Merge todos: combine both, remove duplicates by id, keep local version if duplicate
-        const localTodoIds = new Set(todos.map((t) => t.id));
-        const cloudTodos = cloudData.todos || [];
-        const newCloudTodos = cloudTodos.filter((t) => !localTodoIds.has(t.id));
-        mergedData.todos = [...todos, ...newCloudTodos];
-
-        // Merge comments: combine both objects
-        mergedData.comments = { ...(cloudData.comments || {}), ...comments };
-
-        // Merge reminders: combine both objects
-        mergedData.reminders = { ...(cloudData.reminders || {}), ...reminders };
-
-        // Keep the higher points value
-        mergedData.points = Math.max(points, cloudData.points || 0);
+      if (result.success && result.data) {
+        onDataLoaded(result.data);
+        toast.success('✅ Loaded from cloud', { autoClose: 2000 });
+      } else if (result.success && !result.data) {
+        toast.info('ℹ️ No cloud data found', { autoClose: 2000 });
+      } else {
+        toast.error('❌ Failed to load from cloud');
       }
-
-      // Step 3: Save merged data back to cloud
-      const saveResult = await cloudServiceRef.current.saveAllData(mergedData);
-
-      if (!saveResult.success) {
-        toast.error('❌ Failed to sync to cloud');
-        return;
-      }
-
-      // Step 4: Update local state with merged data
-      onDataLoaded(mergedData);
-
-      toast.success('✅ Synced with cloud', { autoClose: 2000 });
     } catch (error) {
-      toast.error(`❌ Sync error: ${error.message}`);
+      toast.error(`❌ Load error: ${error.message}`);
     } finally {
       setIsSyncing(false);
       syncLockRef.current = false;
     }
-  }, [todos, comments, reminders, points, onDataLoaded]);
+  }, [onDataLoaded]);
+
+  const saveToCloud = useCallback(async () => {
+    if (syncLockRef.current || !cloudServiceRef.current) {
+      return;
+    }
+
+    syncLockRef.current = true;
+    setIsSyncing(true);
+
+    try {
+      const result = await cloudServiceRef.current.saveAllData({
+        todos,
+        comments,
+        reminders,
+        points,
+      });
+
+      if (result.success) {
+        toast.success('✅ Saved to cloud', { autoClose: 2000 });
+      } else {
+        toast.error('❌ Failed to save to cloud');
+      }
+    } catch (error) {
+      toast.error(`❌ Save error: ${error.message}`);
+    } finally {
+      setIsSyncing(false);
+      syncLockRef.current = false;
+    }
+  }, [todos, comments, reminders, points]);
 
   return (
     <div className={styles.storageSettings}>
@@ -132,14 +129,25 @@ const StorageSettings = ({
         <div className={styles.syncButtons}>
           <button
             type="button"
-            onClick={syncData}
+            onClick={loadFromCloud}
             disabled={isSyncing}
-            className={styles.syncButton}
-            aria-label="Sync with cloud"
+            className={styles.loadButton}
+            aria-label="Load from cloud"
           >
-            <FaSync className={isSyncing ? styles.spinning : ''} />
+            <FaDownload />
             {' '}
-            {isSyncing ? 'Syncing...' : 'Sync'}
+            {isSyncing ? 'Loading...' : 'Load'}
+          </button>
+          <button
+            type="button"
+            onClick={saveToCloud}
+            disabled={isSyncing}
+            className={styles.saveButton}
+            aria-label="Save to cloud"
+          >
+            <FaUpload />
+            {' '}
+            {isSyncing ? 'Saving...' : 'Save'}
           </button>
         </div>
       )}
