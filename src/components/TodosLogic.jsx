@@ -390,31 +390,6 @@ const TodosLogic = ({
   // Get user ID for cloud storage (email or anonymous)
   const userId = currentUser ? currentUser.email : 'anonymous';
 
-  // Handle calendar import
-  const handleImportCalendarEvents = (events) => {
-    events.forEach((event) => {
-      const newTodo = {
-        id: uuidv4(),
-        title: event.title,
-        dueDate: event.dueDate,
-        completed: false,
-      };
-      setTodos((prevTodos) => [newTodo, ...prevTodos]);
-
-      if (event.comment) {
-        setComments((prevComments) => ({
-          ...prevComments,
-          [newTodo.id]: event.comment,
-        }));
-      } else {
-        setComments((prevComments) => ({
-          ...prevComments,
-          [newTodo.id]: '',
-        }));
-      }
-    });
-  };
-
   return (
     <>
       <ToastContainer />
@@ -451,7 +426,6 @@ const TodosLogic = ({
         <CalendarView
           todos={todos}
           comments={comments}
-          onImportEvents={handleImportCalendarEvents}
         />
       ) : (
         <>
