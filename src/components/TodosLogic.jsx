@@ -4,6 +4,7 @@ import TodoTabs from 'components/TodoTabs';
 import Pagination from 'components/Pagination';
 import SearchBar from 'components/SearchBar';
 import StorageSettings from 'components/StorageSettings';
+import CalendarView from 'components/CalendarView';
 import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
@@ -286,7 +287,16 @@ const TodosLogic = ({
   // Filter todos based on active tab
   const activeTodos = todos.filter((todo) => !todo.completed);
   const completedTodos = todos.filter((todo) => todo.completed);
-  const filteredByTab = activeTab === 'active' ? activeTodos : completedTodos;
+  const calendarTodos = todos.filter((todo) => todo.dueDate);
+
+  let filteredByTab;
+  if (activeTab === 'active') {
+    filteredByTab = activeTodos;
+  } else if (activeTab === 'completed') {
+    filteredByTab = completedTodos;
+  } else {
+    filteredByTab = calendarTodos;
+  }
 
   // Further filter by search term
   const displayedTodos = filteredByTab.filter((todo) => {
@@ -380,6 +390,31 @@ const TodosLogic = ({
   // Get user ID for cloud storage (email or anonymous)
   const userId = currentUser ? currentUser.email : 'anonymous';
 
+  // Handle calendar import
+  const handleImportCalendarEvents = (events) => {
+    events.forEach((event) => {
+      const newTodo = {
+        id: uuidv4(),
+        title: event.title,
+        dueDate: event.dueDate,
+        completed: false,
+      };
+      setTodos((prevTodos) => [newTodo, ...prevTodos]);
+
+      if (event.comment) {
+        setComments((prevComments) => ({
+          ...prevComments,
+          [newTodo.id]: event.comment,
+        }));
+      } else {
+        setComments((prevComments) => ({
+          ...prevComments,
+          [newTodo.id]: '',
+        }));
+      }
+    });
+  };
+
   return (
     <>
       <ToastContainer />
@@ -408,31 +443,42 @@ const TodosLogic = ({
       <TodoTabs
         activeCount={activeTodos.length}
         completedCount={completedTodos.length}
+        calendarCount={calendarTodos.length}
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />
-      <TodosList
-        todosProps={currentTodos}
-        handleChange={handleChange}
-        deleteTodo={deleteTodo}
-        setUpdate={setUpdate}
-        moveUp={moveUp}
-        moveDown={moveDown}
-        comments={comments}
-        handleCommentChange={handleCommentChange}
-        activeCommentId={activeCommentId}
-        setActiveCommentId={setActiveCommentId}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onDragEnd={onDragEnd}
-        reminders={reminders}
-        handleSaveReminder={handleSaveReminder}
-      />
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={onPageChange}
-      />
+      {activeTab === 'calendar' ? (
+        <CalendarView
+          todos={todos}
+          comments={comments}
+          onImportEvents={handleImportCalendarEvents}
+        />
+      ) : (
+        <>
+          <TodosList
+            todosProps={currentTodos}
+            handleChange={handleChange}
+            deleteTodo={deleteTodo}
+            setUpdate={setUpdate}
+            moveUp={moveUp}
+            moveDown={moveDown}
+            comments={comments}
+            handleCommentChange={handleCommentChange}
+            activeCommentId={activeCommentId}
+            setActiveCommentId={setActiveCommentId}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onDragEnd={onDragEnd}
+            reminders={reminders}
+            handleSaveReminder={handleSaveReminder}
+          />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+          />
+        </>
+      )}
     </>
   );
 };
