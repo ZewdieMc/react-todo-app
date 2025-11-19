@@ -33,6 +33,26 @@
   line-height: 1.5;
 }
 
+/* Ensure lists display properly in task content */
+.content span :global(ul),
+.content span :global(ol) {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+
+.content span :global(ul) {
+  list-style-type: disc;
+}
+
+.content span :global(ol) {
+  list-style-type: decimal;
+}
+
+.content span :global(li) {
+  margin: 4px 0;
+  display: list-item;
+}
+
 .content input[type="checkbox"] {
   order: 1;
   cursor: pointer;
