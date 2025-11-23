@@ -4,7 +4,6 @@ import { EditorState, ContentState, convertToRaw } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
 import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs';
-import DOMPurify from 'dompurify';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { AiFillEdit, AiFillSave } from 'react-icons/ai';
 import { FaTrash, FaCommentDots, FaCalendarAlt } from 'react-icons/fa';
@@ -13,6 +12,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import ConfirmModal from 'components/ConfirmModal';
 import styles from 'styles/TodoItem.module.css';
 import ReminderSettings from './ReminderSettings';
+import CodeBlockRenderer from './CodeBlockRenderer';
 
 const TodoItem = ({
   itemProp, onChange, deleteTodo, setUpdate,
@@ -179,8 +179,7 @@ const TodoItem = ({
           </div>
         )}
         <span style={itemProp.completed ? completedStyle : null}>
-          {/* eslint-disable-next-line */}
-          <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(itemProp.title) }} />
+          <CodeBlockRenderer htmlContent={itemProp.title} />
           {!editingDueDate && itemProp.dueDate && (
             <span className={styles.dueDate}>
               {' '}
