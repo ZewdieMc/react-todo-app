@@ -23,8 +23,6 @@ const TodosList = ({
                   ref={provided.innerRef}
                   // eslint-disable-next-line react/jsx-props-no-spreading
                   {...provided.draggableProps}
-                  // eslint-disable-next-line react/jsx-props-no-spreading
-                  {...provided.dragHandleProps}
                 >
                   <TodoItem
                     index={index}
@@ -43,6 +41,7 @@ const TodosList = ({
                     totalPages={totalPages}
                     reminder={reminders[todo.id]}
                     onSaveReminder={handleSaveReminder}
+                    dragHandleProps={provided.dragHandleProps}
                   />
                 </li>
               )}
@@ -73,12 +72,13 @@ TodosList.propTypes = {
   currentPage: PropTypes.number.isRequired,
   totalPages: PropTypes.number.isRequired,
   onDragEnd: PropTypes.func.isRequired,
-  reminders: PropTypes.objectOf(PropTypes.string).isRequired,
+  reminders: PropTypes.objectOf(PropTypes.string),
   handleSaveReminder: PropTypes.func.isRequired,
 };
 
 TodosList.defaultProps = {
   activeCommentId: null,
+  reminders: {},
 };
 
 export default TodosList;

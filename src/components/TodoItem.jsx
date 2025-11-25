@@ -6,7 +6,9 @@ import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { AiFillEdit, AiFillSave } from 'react-icons/ai';
-import { FaTrash, FaCommentDots, FaCalendarAlt } from 'react-icons/fa';
+import {
+  FaTrash, FaCommentDots, FaCalendarAlt, FaGripVertical,
+} from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import ConfirmModal from 'components/ConfirmModal';
@@ -17,7 +19,7 @@ import CodeBlockRenderer from './CodeBlockRenderer';
 const TodoItem = ({
   itemProp, onChange, deleteTodo, setUpdate,
   comments, handleCommentChange, activeCommentId, setActiveCommentId,
-  reminder, onSaveReminder,
+  reminder, onSaveReminder, dragHandleProps,
 }) => {
   const [editing, setEditing] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -139,6 +141,27 @@ const TodoItem = ({
   return (
     <li className={styles.item}>
       <div className={styles.content} style={viewMode}>
+        <div
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          {...dragHandleProps}
+          className={styles.dragHandle}
+          title="Drag to reorder"
+          style={{
+            cursor: 'grab',
+            display: 'inline-flex',
+            alignItems: 'center',
+            marginRight: '0',
+            order: 0,
+            flexShrink: 0,
+          }}
+        >
+          <FaGripVertical
+            style={{
+              color: '#999',
+              fontSize: '14px',
+            }}
+          />
+        </div>
         <input
           type="checkbox"
           checked={itemProp.completed}
@@ -348,11 +371,13 @@ TodoItem.propTypes = {
   setActiveCommentId: PropTypes.func.isRequired,
   reminder: PropTypes.string,
   onSaveReminder: PropTypes.func.isRequired,
+  dragHandleProps: PropTypes.shape({}),
 };
 
 TodoItem.defaultProps = {
   activeCommentId: null,
   reminder: null,
+  dragHandleProps: {},
 };
 
 export default TodoItem;
