@@ -49,7 +49,7 @@ const CalendarView = ({
     } else if (isOverdue) {
       backgroundColor = '#e74c3c'; // Red for overdue
     } else {
-      backgroundColor = '#f39c12'; // Yellow/Orange for active (not overdue)
+      backgroundColor = '#f39c12'; // Orange for active (not overdue)
     }
 
     return {
