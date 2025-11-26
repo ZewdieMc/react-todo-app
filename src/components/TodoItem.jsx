@@ -112,17 +112,17 @@ const TodoItem = ({
       const rect = menuButtonRef.current.getBoundingClientRect();
       const dropdownWidth = 180;
       let leftPosition = rect.right - dropdownWidth;
-      
+
       // Ensure dropdown doesn't go off-screen on the left
       if (leftPosition < 8) {
         leftPosition = 8;
       }
-      
+
       // Ensure dropdown doesn't go off-screen on the right
       if (leftPosition + dropdownWidth > window.innerWidth - 8) {
         leftPosition = window.innerWidth - dropdownWidth - 8;
       }
-      
+
       setMenuPosition({
         top: rect.bottom + 4,
         left: leftPosition,
