@@ -7,6 +7,8 @@
   transition: background-color 0.15s ease;
   border-radius: 4px;
   margin-bottom: 4px;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 .item:hover {
@@ -31,6 +33,11 @@
   order: 2;
   color: #202020;
   line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* Ensure lists display properly in task content */
@@ -285,11 +292,13 @@
 
   .content {
     flex-wrap: wrap;
+    overflow-x: hidden;
   }
 
   .content span {
     flex: 1 1 100%;
     order: 2;
+    max-width: calc(100vw - 60px);
   }
 
   .content input[type="checkbox"] {
