@@ -9,6 +9,7 @@
   margin-bottom: 4px;
   overflow-x: hidden;
   max-width: 100%;
+  position: relative;
 }
 
 .item:hover {
@@ -283,6 +284,79 @@
 
 .saveButton:hover {
   background: #c53727;
+}
+
+/* Actions Menu Dropdown */
+.actionsContainer {
+  position: relative;
+  order: 3;
+}
+
+.actionsMenuButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.2s ease;
+  border-radius: 4px;
+}
+
+.actionsMenuButton:hover {
+  background: #f3f3f3;
+}
+
+.actionsDropdown {
+  position: fixed;
+  background: white;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 180px;
+  overflow: visible;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.actionsDropdown button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+  font-size: 14px;
+  color: #333;
+}
+
+.actionsDropdown button:hover {
+  background: #f6f8fa;
+}
+
+.actionsDropdown button span {
+  flex: initial;
+  order: initial;
+  color: #333;
+}
+
+.actionsDropdown button.deleteButton:hover {
+  background: #fff5f5;
+  color: #dc4c3e;
+}
+
+.actionsDropdown button.deleteButton span {
+  color: #dc4c3e;
+}
+
+.reminderInMenu {
+  padding: 8px 16px;
+  border-top: 1px solid #f0f0f0;
 }
 
 @media (max-width: 600px) {
