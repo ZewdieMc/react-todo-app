@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { EditorState, ContentState, convertToRaw } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
@@ -7,7 +7,7 @@ import htmlToDraft from 'html-to-draftjs';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { AiFillEdit, AiFillSave } from 'react-icons/ai';
 import {
-  FaTrash, FaCommentDots, FaCalendarAlt, FaGripVertical,
+  FaTrash, FaCommentDots, FaCalendarAlt, FaGripVertical, FaEllipsisV,
 } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -15,6 +15,7 @@ import ConfirmModal from 'components/ConfirmModal';
 import styles from 'styles/TodoItem.module.css';
 import ReminderSettings from './ReminderSettings';
 import CodeBlockRenderer from './CodeBlockRenderer';
+import useOnClickOutside from '../useOnClickOutside';
 
 const TodoItem = ({
   itemProp, onChange, deleteTodo, setUpdate,
@@ -25,6 +26,10 @@ const TodoItem = ({
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [editingDueDate, setEditingDueDate] = useState(false);
   const [tempDueDate, setTempDueDate] = useState(null);
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const actionsMenuRef = useRef(null);
+  const menuButtonRef = useRef(null);
   const [editorState, setEditorState] = useState(() => {
     let contentState;
     try {
@@ -49,6 +54,9 @@ const TodoItem = ({
       setEditorState(EditorState.createWithContent(contentState));
     }
   }, [editing, itemProp.title]);
+
+  // Close actions menu when clicking outside
+  useOnClickOutside(actionsMenuRef, showActionsMenu, () => setShowActionsMenu(false));
 
   const handleEditing = () => {
     setEditing(true);
@@ -97,6 +105,17 @@ const TodoItem = ({
   const handleCancelDueDate = () => {
     setEditingDueDate(false);
     setTempDueDate(null);
+  };
+
+  const handleToggleActionsMenu = () => {
+    if (!showActionsMenu && menuButtonRef.current) {
+      const rect = menuButtonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + 4,
+        left: rect.right - 180, // Align right edge of dropdown with button
+      });
+    }
+    setShowActionsMenu(!showActionsMenu);
   };
 
   const handleDelete = () => {
@@ -167,27 +186,81 @@ const TodoItem = ({
           checked={itemProp.completed}
           onChange={() => onChange(itemProp.id)}
         />
-        <button type="button" onClick={handleEditing} title="Edit task">
-          <AiFillEdit style={{ color: '#666', fontSize: '16px' }} />
-        </button>
-        <button
-          type="button"
-          className={`${styles.button} ${styles['hide-on-mobile']}`}
-          onClick={handleDelete}
-          title="Delete task"
-        >
-          <FaTrash style={{ color: '#666', fontSize: '16px' }} />
-        </button>
-        <button type="button" onClick={toggleComment} title={commentTooltip}>
-          <FaCommentDots style={{ color: '#666', fontSize: '16px' }} />
-        </button>
-        {itemProp.dueDate && (
-          <ReminderSettings
-            todoId={itemProp.id}
-            reminder={reminder}
-            onSaveReminder={onSaveReminder}
-          />
-        )}
+        <div className={styles.actionsContainer} ref={actionsMenuRef}>
+          <button
+            ref={menuButtonRef}
+            type="button"
+            onClick={handleToggleActionsMenu}
+            title="More actions"
+            className={styles.actionsMenuButton}
+          >
+            <FaEllipsisV style={{ color: '#666', fontSize: '16px' }} />
+          </button>
+          {showActionsMenu && (
+            <div
+              className={styles.actionsDropdown}
+              style={{
+                top: `${menuPosition.top}px`,
+                left: `${menuPosition.left}px`,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  handleEditing();
+                  setShowActionsMenu(false);
+                }}
+                title="Edit task"
+              >
+                <AiFillEdit style={{ color: '#666', fontSize: '16px' }} />
+                <span>Edit</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  toggleComment();
+                  setShowActionsMenu(false);
+                }}
+                title={commentTooltip}
+              >
+                <FaCommentDots style={{ color: '#666', fontSize: '16px' }} />
+                <span>Comment</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleEditDueDate();
+                  setShowActionsMenu(false);
+                }}
+                title="Set due date"
+              >
+                <FaCalendarAlt style={{ color: '#666', fontSize: '16px' }} />
+                <span>Due Date</span>
+              </button>
+              {itemProp.dueDate && (
+                <div className={styles.reminderInMenu}>
+                  <ReminderSettings
+                    todoId={itemProp.id}
+                    reminder={reminder}
+                    onSaveReminder={onSaveReminder}
+                  />
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  handleDelete();
+                  setShowActionsMenu(false);
+                }}
+                title="Delete task"
+                className={styles.deleteButton}
+              >
+                <FaTrash style={{ color: '#dc4c3e', fontSize: '16px' }} />
+                <span>Delete</span>
+              </button>
+            </div>
+          )}
+        </div>
         {activeCommentId === itemProp.id && (
           <div className={styles.commentPopup}>
             <textarea
