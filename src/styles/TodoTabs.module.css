@@ -4,6 +4,24 @@
   margin-bottom: 20px;
   border-bottom: 2px solid #f3f3f3;
   padding-bottom: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #ddd #f5f5f5;
+}
+
+.tabsContainer::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tabsContainer::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+.tabsContainer::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 2px;
 }
 
 .tab {
@@ -21,6 +39,8 @@
   align-items: center;
   gap: 8px;
   position: relative;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .tab:hover {
@@ -55,9 +75,15 @@
 }
 
 @media (max-width: 600px) {
+  .tabsContainer {
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
   .tab {
-    padding: 10px 16px;
+    padding: 10px 12px;
     font-size: 13px;
+    gap: 6px;
   }
 
   .tabLabel {

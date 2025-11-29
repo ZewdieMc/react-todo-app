@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import {
-  FaCog, FaVolumeUp, FaVolumeMute, FaBell, FaBellSlash,
+  FaVolumeUp, FaVolumeMute, FaBell, FaBellSlash,
 } from 'react-icons/fa';
 import notificationSound from 'utils/notificationSound';
 import styles from 'styles/NotificationSettings.module.css';
 
 const NotificationSettings = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(notificationSound.isNotificationEnabled());
   const [browserNotificationsEnabled, setBrowserNotificationsEnabled] = useState(
     Notification.permission === 'granted',
@@ -46,66 +45,35 @@ const NotificationSettings = () => {
 
   return (
     <div className={styles.settingsContainer}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className={styles.settingsButton}
-        title="Notification Settings"
-      >
-        <FaCog />
-      </button>
-
-      {isOpen && (
-        <div className={styles.settingsPanel}>
-          <div className={styles.panelHeader}>
-            <h3>Notification Settings</h3>
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className={styles.closeButton}
-            >
-              ×
-            </button>
-          </div>
-
-          <div className={styles.settingItem}>
-            <div className={styles.settingLabel}>
-              {soundEnabled ? <FaVolumeUp /> : <FaVolumeMute />}
-              <span>Sound Notifications</span>
-            </div>
-            <button
-              type="button"
-              onClick={handleSoundToggle}
-              className={`${styles.toggle} ${soundEnabled ? styles.active : ''}`}
-              aria-label="Toggle sound notifications"
-            >
-              <span className={styles.toggleSlider} />
-            </button>
-          </div>
-
-          <div className={styles.settingItem}>
-            <div className={styles.settingLabel}>
-              {browserNotificationsEnabled ? <FaBell /> : <FaBellSlash />}
-              <span>Browser Notifications</span>
-            </div>
-            <button
-              type="button"
-              onClick={handleBrowserNotificationToggle}
-              className={`${styles.toggle} ${browserNotificationsEnabled ? styles.active : ''}`}
-              aria-label="Toggle browser notifications"
-            >
-              <span className={styles.toggleSlider} />
-            </button>
-          </div>
-
-          <div className={styles.settingInfo}>
-            <p>
-              Enable sound and browser notifications to get reminded
-              about your tasks at the right time.
-            </p>
-          </div>
+      <div className={styles.settingItem}>
+        <div className={styles.settingLabel}>
+          {soundEnabled ? <FaVolumeUp /> : <FaVolumeMute />}
+          <span>Sound Notifications</span>
         </div>
-      )}
+        <button
+          type="button"
+          onClick={handleSoundToggle}
+          className={`${styles.toggle} ${soundEnabled ? styles.active : ''}`}
+          aria-label="Toggle sound notifications"
+        >
+          <span className={styles.toggleSlider} />
+        </button>
+      </div>
+
+      <div className={styles.settingItem}>
+        <div className={styles.settingLabel}>
+          {browserNotificationsEnabled ? <FaBell /> : <FaBellSlash />}
+          <span>Browser Notifications</span>
+        </div>
+        <button
+          type="button"
+          onClick={handleBrowserNotificationToggle}
+          className={`${styles.toggle} ${browserNotificationsEnabled ? styles.active : ''}`}
+          aria-label="Toggle browser notifications"
+        >
+          <span className={styles.toggleSlider} />
+        </button>
+      </div>
     </div>
   );
 };
