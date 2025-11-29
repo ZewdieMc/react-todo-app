@@ -25,6 +25,65 @@
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+  position: relative;
+}
+
+.settingsButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.settingsButton:hover {
+  background: #f3f3f3;
+}
+
+.settingsIcon {
+  color: #666;
+  font-size: 20px;
+  transition: transform 0.3s ease;
+}
+
+.settingsButton:hover .settingsIcon {
+  transform: rotate(45deg);
+}
+
+.settingsDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  min-width: 280px;
+  overflow: hidden;
+}
+
+.settingsSection {
+  padding: 16px;
+}
+
+.settingsTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+}
+
+.settingsSeparator {
+  height: 1px;
+  background: #e8e8e8;
+  margin: 0;
 }
 
 .userPhoto {
@@ -68,16 +127,16 @@
 }
 
 @media (max-width: 600px) {
-  .title {
-    font-size: 24px;
-  }
-
-  .icon {
-    font-size: 24px;
+  .headerLeft {
+    display: none;
   }
 
   .subtitle {
-    font-size: 13px;
-    padding-left: 36px;
+    display: none;
+  }
+
+  .header {
+    padding: 0 0 16px 0;
+    margin-bottom: 16px;
   }
 }

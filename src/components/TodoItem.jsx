@@ -30,6 +30,8 @@ const TodoItem = ({
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const actionsMenuRef = useRef(null);
   const menuButtonRef = useRef(null);
+  // Determine mobile viewport once per render (client-side only)
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 600px)').matches;
   const [editorState, setEditorState] = useState(() => {
     let contentState;
     try {
@@ -337,6 +339,10 @@ const TodoItem = ({
                 className={styles.dueDateInput}
                 minDate={new Date()}
                 isClearable
+                injectTimes={[]}
+                withPortal={isMobile}
+                portalId="root"
+                popperClassName="datepicker-popper"
               />
               <button
                 type="button"

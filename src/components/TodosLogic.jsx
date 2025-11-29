@@ -38,18 +38,17 @@ const TodosLogic = ({
     }
   }, []);
 
-  // Update user ID when it changes
+  // Load initial data from cloud - runs on mount and when user changes
   useEffect(() => {
-    if (cloudServiceRef.current && currentUser) {
-      const userId = currentUser.email || 'anonymous';
-      cloudServiceRef.current.setUserId(userId);
-    }
-  }, [currentUser]);
+    const loadData = async () => {
+      if (!cloudServiceRef.current) {
+        setIsLoadingFromCloud(false);
+        return;
+      }
 
-  // Load initial data from cloud
-  useEffect(() => {
-    const loadFromCloud = async () => {
-      if (!cloudServiceRef.current) return;
+      // Update user ID in cloud service
+      const userId = currentUser?.email || 'anonymous';
+      cloudServiceRef.current.setUserId(userId);
 
       try {
         const result = await cloudServiceRef.current.loadData();
@@ -59,16 +58,16 @@ const TodosLogic = ({
           setComments(result.data.comments || {});
           setReminders(result.data.reminders || {});
           setPoints(result.data.points || 0);
-          toast.success('✅ Data loaded', { autoClose: 2000 });
         }
       } catch (error) {
-        toast.error(`❌ Failed to load: ${error.message}`);
+        // eslint-disable-next-line no-console
+        console.error('Failed to load from cloud:', error);
       } finally {
         setIsLoadingFromCloud(false);
       }
     };
 
-    loadFromCloud();
+    loadData();
   }, [currentUser]);
 
   // Request notification permission on mount (with error handling for mobile)
