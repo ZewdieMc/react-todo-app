@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import DOMPurify from 'dompurify';
 import styles from 'styles/CodeBlock.module.css';
+import githubDarkDimmed from '../styles/githubDarkDimmed';
 
 const CodeBlockRenderer = ({ htmlContent }) => {
   const [copiedIndex, setCopiedIndex] = useState(null);
@@ -27,15 +27,15 @@ const CodeBlockRenderer = ({ htmlContent }) => {
         const codeElement = preClone.querySelector('code');
         const codeText = codeElement ? codeElement.textContent : preClone.textContent;
 
-        // Detect language
-        let language = 'text';
-        if (codeText.includes('def ') || codeText.includes('import ') || codeText.includes('print(')) {
+        // Detect language with improved patterns
+        let language = 'bash'; // Default to bash for command-line snippets
+        if (codeText.includes('def ') || codeText.includes('import ') || codeText.includes('print(') || codeText.match(/:\s*$/m)) {
           language = 'python';
-        } else if (codeText.includes('//') && (codeText.includes('int ') || codeText.includes('void ') || codeText.includes('#include'))) {
+        } else if (codeText.includes('#include') || codeText.includes('int main') || codeText.includes('std::') || codeText.includes('cout') || codeText.includes('cin') || codeText.includes('using namespace')) {
           language = 'cpp';
-        } else if (codeText.includes('function') || codeText.includes('const ') || codeText.includes('let ') || codeText.includes('=>')) {
+        } else if (codeText.includes('function') || codeText.includes('const ') || codeText.includes('let ') || codeText.includes('=>') || codeText.includes('console.log')) {
           language = 'javascript';
-        } else if (codeText.match(/^\s*#!/) || codeText.includes('echo ') || codeText.includes('export ') || codeText.includes('source ')) {
+        } else if (codeText.includes('sudo ') || codeText.includes('apt ') || codeText.includes('yum ') || codeText.includes('ros2 ') || codeText.includes('getcap') || codeText.includes('setcap')) {
           language = 'bash';
         }
 
@@ -85,26 +85,27 @@ const CodeBlockRenderer = ({ htmlContent }) => {
               </button>
               <SyntaxHighlighter
                 language={part.language}
-                style={vs}
+                style={githubDarkDimmed}
                 customStyle={{
-                  background: '#f5f7fa',
+                  background: '#22272e',
                   padding: '16px',
                   borderRadius: '8px',
-                  border: '1px solid #e1e4e8',
+                  border: '1px solid #373e47',
                   margin: 0,
                   fontSize: '13px',
                   lineHeight: '1.6',
-                  whiteSpace: 'pre',
+                  whiteSpace: 'pre-wrap',
                   overflowX: 'auto',
                 }}
                 codeTagProps={{
                   style: {
                     fontFamily: "'Fira Code', 'Courier New', Courier, monospace",
-                    whiteSpace: 'pre',
+                    whiteSpace: 'pre-wrap',
                   },
                 }}
                 PreTag="pre"
-                useInlineStyles
+                wrapLines
+                wrapLongLines
               >
                 {part.content}
               </SyntaxHighlighter>
