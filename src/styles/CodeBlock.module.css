@@ -7,9 +7,9 @@
   margin: 12px 0;
 }
 
-.codeBlockWrapper pre {
-  background-color: #f5f7fa !important;
-  border: 1px solid #e1e4e8 !important;
+.codeBlockWrapper :global(pre) {
+  background-color: #22272e !important;
+  border: 1px solid #373e47 !important;
   border-radius: 8px !important;
   padding: 16px !important;
   overflow-x: auto !important;
@@ -20,13 +20,13 @@
 }
 
 @media (max-width: 600px) {
-  .codeBlockWrapper pre {
+  .codeBlockWrapper :global(pre) {
     padding: 12px !important;
     font-size: 11px !important;
     max-width: calc(100vw - 80px) !important;
   }
 
-  .codeBlockWrapper pre code {
+  .codeBlockWrapper :global(pre code) {
     font-size: 11px !important;
   }
 
@@ -36,18 +36,19 @@
   }
 }
 
-.codeBlockWrapper pre code {
+.codeBlockWrapper :global(pre code) {
   background-color: transparent !important;
   border: none !important;
   padding: 0 !important;
   font-family: 'Fira Code', 'Courier New', Courier, monospace !important;
   font-size: 13px !important;
   line-height: 1.6 !important;
-  color: #24292e !important;
   display: block !important;
   white-space: pre-wrap !important;
   word-wrap: break-word !important;
 }
+
+/* Do NOT override span colors - let syntax highlighter inline styles work */
 
 .copyButton {
   position: absolute;

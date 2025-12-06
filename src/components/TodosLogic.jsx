@@ -27,6 +27,7 @@ const TodosLogic = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [notifiedReminders, setNotifiedReminders] = useState(new Set());
   const [isLoadingFromCloud, setIsLoadingFromCloud] = useState(true);
+  const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false);
 
   const cloudServiceRef = useRef(null);
   const savingToCloudRef = useRef(false);
@@ -59,9 +60,12 @@ const TodosLogic = ({
           setReminders(result.data.reminders || {});
           setPoints(result.data.points || 0);
         }
+        // Mark that we have successfully loaded initial data
+        setHasLoadedInitialData(true);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Failed to load from cloud:', error);
+        // Don't allow saving if we failed to load - this prevents data loss
       } finally {
         setIsLoadingFromCloud(false);
       }
@@ -227,6 +231,14 @@ const TodosLogic = ({
 
   useEffect(() => {
     const saveToCloud = async () => {
+      // CRITICAL: Don't save until we have successfully loaded initial data
+      // This prevents overwriting cloud data with empty state during initialization
+      if (!hasLoadedInitialData) {
+        // eslint-disable-next-line no-console
+        console.log('Skipping save: initial data not loaded yet');
+        return;
+      }
+
       if (isLoadingFromCloud || savingToCloudRef.current || !cloudServiceRef.current) return;
 
       savingToCloudRef.current = true;
@@ -249,7 +261,7 @@ const TodosLogic = ({
     // Debounce auto-save by 1 second
     const timeoutId = setTimeout(saveToCloud, 1000);
     return () => clearTimeout(timeoutId);
-  }, [todos, comments, points, reminders, isLoadingFromCloud]);
+  }, [todos, comments, points, reminders, isLoadingFromCloud, hasLoadedInitialData]);
 
   useEffect(() => {
     const checkReminders = () => {
