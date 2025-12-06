@@ -435,17 +435,115 @@
   font-weight: 600;
 }
 
+.assignHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #666;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.clearAssignees {
+  font-size: 11px;
+  color: #dc4c3e;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.clearAssignees:hover {
+  text-decoration: underline;
+}
+
+.assigneeCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  transition: background 0.15s;
+}
+
+.assigneeCheckbox:hover {
+  background: #f0f0f0;
+}
+
+.assigneeCheckbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.assigneeCheckbox span {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.assignedBadges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: 8px;
+}
+
 .assignedBadge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  margin-left: 8px;
   background: #e3f2fd;
   color: #1565c0;
   border-radius: 12px;
   font-size: 11px;
   font-weight: 500;
+}
+
+/* Badge color variations for different assignees */
+.badgeColor0 {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badgeColor1 {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.badgeColor2 {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badgeColor3 {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.badgeColor4 {
+  background: #fce4ec;
+  color: #c2185b;
+}
+
+.badgeColor5 {
+  background: #e0f2f1;
+  color: #00695c;
+}
+
+.badgeColor6 {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.badgeColor7 {
+  background: #ede7f6;
+  color: #512da8;
 }
 
 @media (max-width: 600px) {
