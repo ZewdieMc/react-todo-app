@@ -305,19 +305,26 @@ const TodoItem = ({
                         const isAssigned = Array.isArray(itemProp.assignedTo)
                           ? itemProp.assignedTo.includes(member)
                           : itemProp.assignedTo === member;
+                        const checkboxId = `assign-${itemProp.id}-${member.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                        const getAssigneesArray = () => {
+                          if (Array.isArray(itemProp.assignedTo)) {
+                            return [...itemProp.assignedTo];
+                          }
+                          return itemProp.assignedTo ? [itemProp.assignedTo] : [];
+                        };
                         return (
                           <label
                             key={member}
+                            htmlFor={checkboxId}
                             className={`${styles.assigneeCheckbox} ${isAssigned ? styles.activeAssignee : ''}`}
                             title={member}
                           >
                             <input
+                              id={checkboxId}
                               type="checkbox"
                               checked={isAssigned}
                               onChange={() => {
-                                const currentAssignees = Array.isArray(itemProp.assignedTo)
-                                  ? [...itemProp.assignedTo]
-                                  : itemProp.assignedTo ? [itemProp.assignedTo] : [];
+                                const currentAssignees = getAssigneesArray();
                                 if (isAssigned) {
                                   // Remove from assignees
                                   const newAssignees = currentAssignees.filter((a) => a !== member);
