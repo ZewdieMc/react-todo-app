@@ -7,7 +7,7 @@ import htmlToDraft from 'html-to-draftjs';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { AiFillEdit, AiFillSave } from 'react-icons/ai';
 import {
-  FaTrash, FaCommentDots, FaCalendarAlt, FaGripVertical, FaEllipsisV,
+  FaTrash, FaCommentDots, FaCalendarAlt, FaGripVertical, FaEllipsisV, FaUserCircle,
 } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -21,13 +21,24 @@ const TodoItem = ({
   itemProp, onChange, deleteTodo, setUpdate,
   comments, handleCommentChange, activeCommentId, setActiveCommentId,
   reminder, onSaveReminder, dragHandleProps,
+  listMembers, memberDetails, onAssign, isSharedList,
 }) => {
   const [editing, setEditing] = useState(false);
+
+  // Helper to get display name for an email
+  const getDisplayName = (email) => {
+    if (memberDetails && memberDetails[email]?.displayName) {
+      return memberDetails[email].displayName;
+    }
+    // Fallback to email prefix
+    return email ? email.split('@')[0] : 'Unknown';
+  };
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [editingDueDate, setEditingDueDate] = useState(false);
   const [tempDueDate, setTempDueDate] = useState(null);
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [showAssignMenu, setShowAssignMenu] = useState(false);
   const actionsMenuRef = useRef(null);
   const menuButtonRef = useRef(null);
   // Determine mobile viewport once per render (client-side only)
@@ -113,7 +124,9 @@ const TodoItem = ({
     if (!showActionsMenu && menuButtonRef.current) {
       const rect = menuButtonRef.current.getBoundingClientRect();
       const dropdownWidth = 180;
+      const dropdownHeight = 280; // Approximate height of the dropdown
       let leftPosition = rect.right - dropdownWidth;
+      let topPosition = rect.bottom + 4;
 
       // Ensure dropdown doesn't go off-screen on the left
       if (leftPosition < 8) {
@@ -125,8 +138,18 @@ const TodoItem = ({
         leftPosition = window.innerWidth - dropdownWidth - 8;
       }
 
+      // Ensure dropdown doesn't go off-screen on the bottom
+      if (topPosition + dropdownHeight > window.innerHeight - 8) {
+        // Position above the button instead
+        topPosition = rect.top - dropdownHeight - 4;
+        // If still off-screen at top, just position at top of viewport
+        if (topPosition < 8) {
+          topPosition = 8;
+        }
+      }
+
       setMenuPosition({
-        top: rect.bottom + 4,
+        top: topPosition,
         left: leftPosition,
       });
     }
@@ -252,6 +275,48 @@ const TodoItem = ({
                 <FaCalendarAlt style={{ color: '#666', fontSize: '16px' }} />
                 <span>Due Date</span>
               </button>
+              {isSharedList && listMembers && listMembers.length > 0 && (
+                <div className={styles.assignMenuWrapper}>
+                  <button
+                    type="button"
+                    onClick={() => setShowAssignMenu(!showAssignMenu)}
+                    title="Assign task"
+                  >
+                    <FaUserCircle style={{ color: '#666', fontSize: '16px' }} />
+                    <span>Assign</span>
+                  </button>
+                  {showAssignMenu && (
+                    <div className={styles.assignSubmenu}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onAssign(itemProp.id, null);
+                          setShowAssignMenu(false);
+                          setShowActionsMenu(false);
+                        }}
+                        className={!itemProp.assignedTo ? styles.activeAssignee : ''}
+                      >
+                        Unassigned
+                      </button>
+                      {listMembers.map((member) => (
+                        <button
+                          key={member}
+                          type="button"
+                          onClick={() => {
+                            onAssign(itemProp.id, member);
+                            setShowAssignMenu(false);
+                            setShowActionsMenu(false);
+                          }}
+                          className={itemProp.assignedTo === member ? styles.activeAssignee : ''}
+                          title={member}
+                        >
+                          {getDisplayName(member)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               {itemProp.dueDate && (
                 <div className={styles.reminderInMenu}>
                   <ReminderSettings
@@ -291,6 +356,12 @@ const TodoItem = ({
         )}
         <span style={itemProp.completed ? completedStyle : null}>
           <CodeBlockRenderer htmlContent={itemProp.title} />
+          {isSharedList && itemProp.assignedTo && (
+            <span className={styles.assignedBadge}>
+              <FaUserCircle />
+              {getDisplayName(itemProp.assignedTo)}
+            </span>
+          )}
           {!editingDueDate && itemProp.dueDate && (
             <span className={styles.dueDate}>
               {' '}
@@ -453,6 +524,7 @@ TodoItem.propTypes = {
     title: PropTypes.string,
     completed: PropTypes.bool,
     dueDate: PropTypes.string,
+    assignedTo: PropTypes.string,
   }).isRequired,
   onChange: PropTypes.func.isRequired,
   deleteTodo: PropTypes.func.isRequired,
@@ -464,12 +536,22 @@ TodoItem.propTypes = {
   reminder: PropTypes.string,
   onSaveReminder: PropTypes.func.isRequired,
   dragHandleProps: PropTypes.shape({}),
+  listMembers: PropTypes.arrayOf(PropTypes.string),
+  memberDetails: PropTypes.objectOf(PropTypes.shape({
+    displayName: PropTypes.string,
+  })),
+  onAssign: PropTypes.func,
+  isSharedList: PropTypes.bool,
 };
 
 TodoItem.defaultProps = {
   activeCommentId: null,
   reminder: null,
   dragHandleProps: {},
+  listMembers: [],
+  memberDetails: {},
+  onAssign: () => {},
+  isSharedList: false,
 };
 
 export default TodoItem;

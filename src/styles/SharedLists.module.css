@@ -1,0 +1,341 @@
+.sharedListsPanel {
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.createButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #dc4c3e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.createButton:hover {
+  background: #c43d30;
+}
+
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+.listItem:hover {
+  background: #f0f1f2;
+}
+
+.listItem.active {
+  background: #fff5f5;
+  border-color: #dc4c3e;
+}
+
+.listItem.personal {
+  background: #f0f7ff;
+}
+
+.listItem.personal.active {
+  background: #e6f0ff;
+  border-color: #2196f3;
+}
+
+.listInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.listIcon {
+  font-size: 18px;
+}
+
+.listDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.listName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.listMeta {
+  font-size: 12px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.memberCount {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.todoCount {
+  color: #888;
+}
+
+.listActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.actionButton {
+  padding: 6px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.actionButton:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.ownerBadge {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: #dc4c3e;
+  color: white;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 24px;
+  color: #888;
+}
+
+.emptyState p {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+
+/* Modal styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal h3 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  color: #333;
+}
+
+.inputGroup {
+  margin-bottom: 16px;
+}
+
+.inputGroup label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+}
+
+.inputGroup input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.inputGroup input:focus {
+  outline: none;
+  border-color: #dc4c3e;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.cancelButton {
+  padding: 10px 16px;
+  background: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cancelButton:hover {
+  background: #e0e0e0;
+}
+
+.submitButton {
+  padding: 10px 16px;
+  background: #dc4c3e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submitButton:hover {
+  background: #c43d30;
+}
+
+.submitButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Members list in modal */
+.membersList {
+  margin: 16px 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.memberItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.memberEmail {
+  font-size: 14px;
+  color: #333;
+}
+
+.membersLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+}
+
+.removeButton {
+  padding: 4px 8px;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.removeButton:hover {
+  background: #ee5a5a;
+}
+
+.removeButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Collapsible panel */
+.toggleButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.toggleButton:hover {
+  background: #f0f1f2;
+}
+
+.toggleIcon {
+  transition: transform 0.2s;
+}
+
+.toggleIcon.open {
+  transform: rotate(180deg);
+}
+
+.panelContent {
+  margin-top: 12px;
+}
+
+.panelContent.collapsed {
+  display: none;
+}

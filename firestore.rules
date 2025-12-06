@@ -5,6 +5,38 @@ service cloud.firestore {
     // userId in the path must match the authenticated user's email
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.token.email == userId;
+      
+      // Allow access to sharedListRefs subcollection
+      // Users can manage their own refs, AND other authenticated users can add refs
+      // (needed when inviting someone to a shared list)
+      match /sharedListRefs/{listId} {
+        // User can read/write their own refs
+        allow read, write: if request.auth != null && request.auth.token.email == userId;
+        // Any authenticated user can create a ref for another user (for invitations)
+        allow create: if request.auth != null;
+        // Any authenticated user can delete a ref (for removing members)
+        allow delete: if request.auth != null;
+      }
+    }
+    
+    // Shared lists - accessible by members
+    match /sharedLists/{listId} {
+      // Allow read if user is a member of the list
+      allow read: if request.auth != null && 
+        request.auth.token.email in resource.data.members;
+      
+      // Allow create if user is authenticated (they become owner)
+      allow create: if request.auth != null && 
+        request.auth.token.email == request.resource.data.owner &&
+        request.auth.token.email in request.resource.data.members;
+      
+      // Allow update if user is a member
+      allow update: if request.auth != null && 
+        request.auth.token.email in resource.data.members;
+      
+      // Allow delete only by owner
+      allow delete: if request.auth != null && 
+        request.auth.token.email == resource.data.owner;
     }
   }
 }
