@@ -13,6 +13,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import DOMPurify from 'dompurify';
 import notificationSound from 'utils/notificationSound';
 import CloudStorageService from '../firebase/cloudStorage';
+import SharedListsService from '../firebase/sharedListsService';
+import SharedListsPanel from './SharedListsPanel';
 import 'react-toastify/dist/ReactToastify.css';
 
 const TodosLogic = ({
@@ -29,19 +31,85 @@ const TodosLogic = ({
   const [isLoadingFromCloud, setIsLoadingFromCloud] = useState(true);
   const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false);
 
+  // Shared lists state
+  const [activeList, setActiveList] = useState({ id: 'personal', name: 'My Tasks', type: 'personal' });
+  const [listMembers, setListMembers] = useState([]);
+
   const cloudServiceRef = useRef(null);
+  const sharedListsServiceRef = useRef(null);
   const savingToCloudRef = useRef(false);
+  const sharedListUnsubscribeRef = useRef(null);
+  const pendingLocalChangesRef = useRef(false);
+
+  // State for member details (email -> displayName mapping)
+  const [memberDetails, setMemberDetails] = useState({});
 
   // Initialize cloud service
   useEffect(() => {
     if (!cloudServiceRef.current) {
       cloudServiceRef.current = new CloudStorageService('anonymous');
     }
-  }, []);
+    if (!sharedListsServiceRef.current && currentUser?.email) {
+      sharedListsServiceRef.current = new SharedListsService(
+        currentUser.email,
+        currentUser.displayName,
+      );
+    } else if (sharedListsServiceRef.current && currentUser?.displayName) {
+      sharedListsServiceRef.current.setUserDisplayName(currentUser.displayName);
+    }
+  }, [currentUser]);
 
-  // Load initial data from cloud - runs on mount and when user changes
+  // Load initial data from cloud - runs on mount and when user or active list changes
   useEffect(() => {
     const loadData = async () => {
+      // Cleanup previous shared list subscription
+      if (sharedListUnsubscribeRef.current) {
+        sharedListUnsubscribeRef.current();
+        sharedListUnsubscribeRef.current = null;
+      }
+
+      setIsLoadingFromCloud(true);
+      setHasLoadedInitialData(false);
+
+      // If it's a shared list, subscribe to it
+      if (activeList.type === 'shared' && sharedListsServiceRef.current) {
+        // Update current user's display name in the list
+        sharedListsServiceRef.current.updateMyDisplayName(activeList.id);
+
+        // Track if we've received initial data for this list
+        let receivedInitialData = false;
+
+        sharedListUnsubscribeRef.current = sharedListsServiceRef.current.subscribeToList(
+          activeList.id,
+          (result) => {
+            // On first load, always accept the data
+            // Only skip if we have pending local changes AND already received initial data
+            if (pendingLocalChangesRef.current && receivedInitialData) {
+              // eslint-disable-next-line no-console
+              console.log('Skipping subscription update: pending local changes');
+              return;
+            }
+            if (result.success && result.data) {
+              setTodos(result.data.todos || []);
+              setComments(result.data.comments || {});
+              setReminders(result.data.reminders || {});
+              setListMembers(result.data.members || []);
+              setMemberDetails(result.data.memberDetails || {});
+              // Points are personal, not shared
+              receivedInitialData = true;
+            }
+            setHasLoadedInitialData(true);
+            setIsLoadingFromCloud(false);
+          },
+        );
+        return;
+      }
+
+      // Personal list - clear members
+      setListMembers([]);
+      setMemberDetails({});
+
+      // Personal list - use cloud storage service
       if (!cloudServiceRef.current) {
         setIsLoadingFromCloud(false);
         return;
@@ -72,7 +140,14 @@ const TodosLogic = ({
     };
 
     loadData();
-  }, [currentUser]);
+
+    // Cleanup on unmount or when dependencies change
+    return () => {
+      if (sharedListUnsubscribeRef.current) {
+        sharedListUnsubscribeRef.current();
+      }
+    };
+  }, [currentUser, activeList]);
 
   // Request notification permission on mount (with error handling for mobile)
   useEffect(() => {
@@ -219,6 +294,17 @@ const TodosLogic = ({
     );
   };
 
+  const handleAssign = (todoId, assignee) => {
+    setTodos(
+      todos.map((todo) => {
+        if (todo.id === todoId) {
+          return { ...todo, assignedTo: assignee };
+        }
+        return todo;
+      }),
+    );
+  };
+
   const onDragEnd = (result) => {
     if (!result.destination) return;
 
@@ -230,6 +316,11 @@ const TodosLogic = ({
   };
 
   useEffect(() => {
+    // Mark that we have pending local changes as soon as state changes
+    if (hasLoadedInitialData && activeList.type === 'shared') {
+      pendingLocalChangesRef.current = true;
+    }
+
     const saveToCloud = async () => {
       // CRITICAL: Don't save until we have successfully loaded initial data
       // This prevents overwriting cloud data with empty state during initialization
@@ -239,29 +330,41 @@ const TodosLogic = ({
         return;
       }
 
-      if (isLoadingFromCloud || savingToCloudRef.current || !cloudServiceRef.current) return;
+      if (isLoadingFromCloud || savingToCloudRef.current) return;
 
       savingToCloudRef.current = true;
 
       try {
-        await cloudServiceRef.current.saveAllData({
-          todos,
-          comments,
-          reminders,
-          points,
-        });
+        // Save to shared list or personal list based on active list
+        if (activeList.type === 'shared' && sharedListsServiceRef.current) {
+          await sharedListsServiceRef.current.saveListTodos(activeList.id, todos);
+          await sharedListsServiceRef.current.saveListComments(activeList.id, comments);
+          await sharedListsServiceRef.current.saveListReminders(activeList.id, reminders);
+        } else if (cloudServiceRef.current) {
+          await cloudServiceRef.current.saveAllData({
+            todos,
+            comments,
+            reminders,
+            points,
+          });
+        }
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Auto-save error:', error);
       } finally {
         savingToCloudRef.current = false;
+        // Clear the pending changes flag after save completes
+        // Use a small delay to allow Firestore to propagate the update
+        setTimeout(() => {
+          pendingLocalChangesRef.current = false;
+        }, 500);
       }
     };
 
     // Debounce auto-save by 1 second
     const timeoutId = setTimeout(saveToCloud, 1000);
     return () => clearTimeout(timeoutId);
-  }, [todos, comments, points, reminders, isLoadingFromCloud, hasLoadedInitialData]);
+  }, [todos, comments, points, reminders, isLoadingFromCloud, hasLoadedInitialData, activeList]);
 
   useEffect(() => {
     const checkReminders = () => {
@@ -419,9 +522,49 @@ const TodosLogic = ({
     onPageChange(1); // Reset to first page when searching
   };
 
+  // Handle list selection
+  const handleListSelect = (list) => {
+    setActiveList(list);
+    onPageChange(1); // Reset to first page when switching lists
+    setActiveTab('active'); // Reset to active tab
+  };
+
   return (
     <>
       <ToastContainer />
+
+      {/* Shared Lists Panel - only show when logged in */}
+      {currentUser && (
+        <SharedListsPanel
+          currentUser={currentUser}
+          activeList={activeList}
+          onListSelect={handleListSelect}
+        />
+      )}
+
+      {/* Current List Indicator */}
+      {activeList.type === 'shared' && (
+        <div style={{
+          padding: '8px 16px',
+          background: '#fff5f5',
+          borderRadius: '8px',
+          marginBottom: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontSize: '14px',
+          color: '#dc4c3e',
+          fontWeight: 500,
+        }}
+        >
+          📋 Viewing:
+          {' '}
+          <strong>{activeList.name}</strong>
+          {' '}
+          (Shared List)
+        </div>
+      )}
+
       {/* Search Bar */}
       <div style={{
         marginBottom: '1rem',
@@ -460,6 +603,10 @@ const TodosLogic = ({
             onDragEnd={onDragEnd}
             reminders={reminders}
             handleSaveReminder={handleSaveReminder}
+            listMembers={listMembers}
+            memberDetails={memberDetails}
+            onAssign={handleAssign}
+            isSharedList={activeList.type === 'shared'}
           />
           <Pagination
             currentPage={currentPage}

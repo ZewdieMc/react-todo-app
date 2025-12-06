@@ -17,7 +17,7 @@ const githubDarkDimmed = {
   },
   'pre[class*="language-"]': {
     color: '#adbac7',
-    background: '#2b3038ff',
+    background: '#b1d8c9ff',
     fontFamily: "'Fira Code', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace",
     textAlign: 'left',
     whiteSpace: 'pre',
@@ -58,13 +58,13 @@ const githubDarkDimmed = {
     color: '#8ddb8c',
   },
   boolean: {
-    color: '#6cb6ff',
+    color: '#a72ea7ff',
   },
   number: {
     color: '#6cb6ff',
   },
   constant: {
-    color: '#6cb6ff',
+    color: '#ec1616ff',
   },
   symbol: {
     color: '#6cb6ff',

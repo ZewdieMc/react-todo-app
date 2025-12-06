@@ -6,7 +6,7 @@ import TodoItem from 'components/TodoItem';
 const TodosList = ({
   todosProps, handleChange, deleteTodo, setUpdate, moveUp, moveDown, comments,
   handleCommentChange, activeCommentId, setActiveCommentId, currentPage, totalPages, onDragEnd,
-  reminders, handleSaveReminder,
+  reminders, handleSaveReminder, listMembers, memberDetails, onAssign, isSharedList,
 }) => (
   <DragDropContext onDragEnd={onDragEnd}>
     <Droppable droppableId="todos">
@@ -42,6 +42,10 @@ const TodosList = ({
                     reminder={reminders[todo.id]}
                     onSaveReminder={handleSaveReminder}
                     dragHandleProps={provided.dragHandleProps}
+                    listMembers={listMembers}
+                    memberDetails={memberDetails}
+                    onAssign={onAssign}
+                    isSharedList={isSharedList}
                   />
                 </li>
               )}
@@ -74,11 +78,21 @@ TodosList.propTypes = {
   onDragEnd: PropTypes.func.isRequired,
   reminders: PropTypes.objectOf(PropTypes.string),
   handleSaveReminder: PropTypes.func.isRequired,
+  listMembers: PropTypes.arrayOf(PropTypes.string),
+  memberDetails: PropTypes.objectOf(PropTypes.shape({
+    displayName: PropTypes.string,
+  })),
+  onAssign: PropTypes.func,
+  isSharedList: PropTypes.bool,
 };
 
 TodosList.defaultProps = {
   activeCommentId: null,
   reminders: {},
+  listMembers: [],
+  memberDetails: {},
+  onAssign: () => {},
+  isSharedList: false,
 };
 
 export default TodosList;
