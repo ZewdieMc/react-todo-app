@@ -287,32 +287,51 @@ const TodoItem = ({
                   </button>
                   {showAssignMenu && (
                     <div className={styles.assignSubmenu}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onAssign(itemProp.id, null);
-                          setShowAssignMenu(false);
-                          setShowActionsMenu(false);
-                        }}
-                        className={!itemProp.assignedTo ? styles.activeAssignee : ''}
-                      >
-                        Unassigned
-                      </button>
-                      {listMembers.map((member) => (
-                        <button
-                          key={member}
-                          type="button"
-                          onClick={() => {
-                            onAssign(itemProp.id, member);
-                            setShowAssignMenu(false);
-                            setShowActionsMenu(false);
-                          }}
-                          className={itemProp.assignedTo === member ? styles.activeAssignee : ''}
-                          title={member}
-                        >
-                          {getDisplayName(member)}
-                        </button>
-                      ))}
+                      <div className={styles.assignHeader}>
+                        <span>Assign to:</span>
+                        {itemProp.assignedTo?.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onAssign(itemProp.id, []);
+                            }}
+                            className={styles.clearAssignees}
+                          >
+                            Clear all
+                          </button>
+                        )}
+                      </div>
+                      {listMembers.map((member) => {
+                        const isAssigned = Array.isArray(itemProp.assignedTo)
+                          ? itemProp.assignedTo.includes(member)
+                          : itemProp.assignedTo === member;
+                        return (
+                          <label
+                            key={member}
+                            className={`${styles.assigneeCheckbox} ${isAssigned ? styles.activeAssignee : ''}`}
+                            title={member}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isAssigned}
+                              onChange={() => {
+                                const currentAssignees = Array.isArray(itemProp.assignedTo)
+                                  ? [...itemProp.assignedTo]
+                                  : itemProp.assignedTo ? [itemProp.assignedTo] : [];
+                                if (isAssigned) {
+                                  // Remove from assignees
+                                  const newAssignees = currentAssignees.filter((a) => a !== member);
+                                  onAssign(itemProp.id, newAssignees);
+                                } else {
+                                  // Add to assignees
+                                  onAssign(itemProp.id, [...currentAssignees, member]);
+                                }
+                              }}
+                            />
+                            <span>{getDisplayName(member)}</span>
+                          </label>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -357,10 +376,34 @@ const TodoItem = ({
         <span style={itemProp.completed ? completedStyle : null}>
           <CodeBlockRenderer htmlContent={itemProp.title} />
           {isSharedList && itemProp.assignedTo && (
-            <span className={styles.assignedBadge}>
-              <FaUserCircle />
-              {getDisplayName(itemProp.assignedTo)}
-            </span>
+            Array.isArray(itemProp.assignedTo) ? (
+              itemProp.assignedTo.length > 0 && (
+                <span className={styles.assignedBadges}>
+                  {itemProp.assignedTo.map((assignee) => {
+                    // Get color index based on member position
+                    const colorIndex = listMembers.indexOf(assignee) % 8;
+                    return (
+                      <span
+                        key={assignee}
+                        className={`${styles.assignedBadge} ${styles[`badgeColor${colorIndex}`]}`}
+                        title={assignee}
+                      >
+                        <FaUserCircle />
+                        {getDisplayName(assignee)}
+                      </span>
+                    );
+                  })}
+                </span>
+              )
+            ) : (
+              <span
+                className={`${styles.assignedBadge} ${styles[`badgeColor${listMembers.indexOf(itemProp.assignedTo) % 8}`]}`}
+                title={itemProp.assignedTo}
+              >
+                <FaUserCircle />
+                {getDisplayName(itemProp.assignedTo)}
+              </span>
+            )
           )}
           {!editingDueDate && itemProp.dueDate && (
             <span className={styles.dueDate}>
@@ -524,7 +567,10 @@ TodoItem.propTypes = {
     title: PropTypes.string,
     completed: PropTypes.bool,
     dueDate: PropTypes.string,
-    assignedTo: PropTypes.string,
+    assignedTo: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string),
+    ]),
   }).isRequired,
   onChange: PropTypes.func.isRequired,
   deleteTodo: PropTypes.func.isRequired,

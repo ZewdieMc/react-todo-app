@@ -294,11 +294,12 @@ const TodosLogic = ({
     );
   };
 
-  const handleAssign = (todoId, assignee) => {
+  const handleAssign = (todoId, assignees) => {
     setTodos(
       todos.map((todo) => {
         if (todo.id === todoId) {
-          return { ...todo, assignedTo: assignee };
+          // assignees is now an array (can be empty to clear all)
+          return { ...todo, assignedTo: assignees };
         }
         return todo;
       }),
