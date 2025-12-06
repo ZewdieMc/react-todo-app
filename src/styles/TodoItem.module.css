@@ -47,6 +47,7 @@
 .content span :global(pre) span {
   color: unset;
 }
+
 .content span::-webkit-scrollbar {
   width: 6px;
 }
